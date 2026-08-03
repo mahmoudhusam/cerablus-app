@@ -1,0 +1,57 @@
+// Cerablus Coffee — database schema.
+// Source of truth for the menu once seeded (Step 2). See CLAUDE.md.
+//
+// Prisma 7: connection URLs live in prisma.config.ts, not in the datasource
+// block. The datasource here declares the provider only.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// A menu section, e.g. "القهوة الساخنة".
+model Category {
+  id        String @id @default(cuid())
+  name      String // Arabic display name
+  slug      String @unique // stable url-safe id
+  sortOrder Int // preserves menu ordering (first-appearance order)
+  items     Item[]
+
+  @@index([sortOrder])
+}
+
+/// A single menu item. Has EITHER `price` OR `variants`, never both —
+/// enforced in application logic, not by the database.
+model Item {
+  id         String    @id @default(cuid())
+  name       String // Arabic
+  desc       String    @default("")
+  price      Int? // single-price items (whole ل.س); null if variants
+  imageUrl   String    @default("") // Cloudinary URL; "" -> branded placeholder
+  available  Boolean   @default(true) // false -> "غير متوفر", dimmed, not addable
+  featured   Boolean   @default(false) // powers الأكثر طلبًا + hero slideshow
+  offer      Boolean   @default(false) // powers العروض
+  oldPrice   Int? // struck-through; only meaningful when offer = true
+  sortOrder  Int       @default(0)
+  category   Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String
+  variants   Variant[]
+
+  @@index([categoryId, sortOrder])
+}
+
+/// A priced size/portion of an item, e.g. "صغير" / "كبير" / "لشخصين".
+model Variant {
+  id        String @id @default(cuid())
+  label     String
+  price     Int // whole ل.س
+  sortOrder Int    @default(0)
+  item      Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId    String
+
+  @@index([itemId, sortOrder])
+}
