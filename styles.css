@@ -1,0 +1,556 @@
+/* ==========================================================================
+   Cerablus Coffee — shared styles
+   Design direction C ("العصري"). Every design token lives in the :root block
+   below; nothing further down this file should contain a raw hex or px value.
+   ========================================================================== */
+
+:root{
+  /* --- brand colors --- */
+  --pine:#0c3d26;          /* primary dark green */
+  --green:#006639;         /* secondary / action green */
+  --gold:#cda05f;          /* accent — used sparingly */
+  --mint:#e9f4ee;          /* light tint */
+  --white:#ffffff;         /* page base */
+  --wa:#25D366;            /* WhatsApp green — reserved for order actions */
+
+  /* --- semantic colors --- */
+  --ink:var(--pine);       /* body text */
+  --soft:#5b6f64;          /* muted / secondary text */
+
+  /* --- translucent brand tints (rgb triplets so alpha can vary) --- */
+  --pine-rgb:12,61,38;
+  --mint-rgb:233,244,238;
+  --gold-rgb:205,160,95;
+  --tint-line:rgba(var(--pine-rgb),.15);     /* hairline borders on light bg */
+  --tint-mint-soft:rgba(var(--mint-rgb),.7); /* muted text on dark green */
+  --tint-mint-ghost:rgba(var(--mint-rgb),.16);
+  --tint-mint-faint:rgba(var(--mint-rgb),.14);
+  --tint-gold-soft:rgba(var(--gold-rgb),.25);
+
+  /* --- type --- */
+  --f-ar:"Cairo",sans-serif;                  /* Arabic display / headings */
+  --f-body:"IBM Plex Sans Arabic",sans-serif; /* Arabic body */
+  --f-word:"Sora",sans-serif;                 /* Latin wordmark / display */
+
+  /* --- radii --- */
+  --r-xs:9px;
+  --r-sm:10px;
+  --r-md:12px;
+  --r-lg:18px;
+  --r-xl:20px;
+  --r-2xl:28px;
+  --r-pill:999px;
+
+  /* --- border widths --- */
+  --hair:1px;           /* smallest real length (visually-hidden boxes) */
+  --bw-hair:1.5px;
+  --bw:2px;
+  --bw-underline:5px;
+
+  /* --- layout --- */
+  --wrap-max:1140px;      /* content column */
+  --wrap-gutter:2.4rem;   /* total horizontal gutter */
+  --card-min:240px;       /* menu grid track minimum */
+  --mark-size:40px;       /* header logo tile */
+  --mark-glyph:26px;      /* logo glyph inside that tile */
+  --mark-glyph-lg:36px;   /* logo glyph in the footer */
+  --lockup-max:430px;     /* hero wordmark lockup */
+  --hero-art-max:440px;   /* hero green block height cap */
+  --hero-art-mobile:380px;/* hero green block width cap on mobile */
+  --dot:120px;            /* decorative circle in the hero block */
+  --dot-offset:-30px;
+
+  /* --- spacing scale --- */
+  --s-1:.2rem;
+  --s-2:.35rem;
+  --s-3:.5rem;
+  --s-4:.6rem;
+  --s-5:.9rem;
+  --s-6:1.1rem;
+  --s-7:1.4rem;
+  --s-8:1.8rem;
+  --s-9:3rem;
+
+  /* --- empty image-zone placeholder ---
+     The Cerablus mark, tinted brand green over the mint tile. Sizing is keyed
+     to the tile's height so it stays proportional at every card width. */
+  --ph-opacity:.13;
+  --ph-size:auto 44%;
+
+  /* --- sticky chrome ---
+     Sticky offsets must be real lengths, so these are tokens. --header-h is
+     authoritative: .nav enforces it as a min-height, so every header on every
+     page is exactly this tall and .toolbar can dock flush beneath it.
+     --toolbar-h is measured from the rendered toolbar; update it if the
+     toolbar's contents change. */
+  --header-h:75px;
+  --toolbar-h:119px;
+  --stick:calc(var(--header-h) + var(--toolbar-h));
+  --z-header:20;
+  --z-toolbar:15;
+
+  /* --- unavailable items --- */
+  --dim:.45;
+
+  /* --- empty state --- */
+  --body-min:60vh;      /* keeps the footer put when results shrink */
+  --empty-mark:64px;
+
+  /* --- cart drawer ---
+     The page is dir="rtl", so the drawer's inline-end edge is the left one and
+     it must slide out to the left. `translate` is physical, so the offset's
+     sign is tokenized here and flipped for LTR below. */
+  --drawer-w:min(420px, 92vw);
+  --drawer-off:-100%;
+  --overlay:rgba(var(--pine-rgb),.45);
+  --qty-btn:30px;
+  --z-overlay:40;
+  --z-drawer:45;
+
+  /* --- motion --- */
+  --t-fast:.2s;
+  --t-slow:.35s;
+
+  /* --- elevation ---
+     Direction C uses flat blocks and a hover lift instead of drop shadows;
+     this token exists so future components have one place to pull from. */
+  --lift:translateY(-3px);
+
+  /* The mark as a mask image, so its color comes from a brand token rather than
+     being baked into the file. Inlined as a data URI on purpose: browsers treat
+     a file:// page as an opaque origin and refuse an external SVG mask, and this
+     site must work when index.html is double-clicked. Visual source of truth is
+     assets/cerablus-mark.svg — regenerate this if that file changes. */
+--mark-mask:url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20158.000000%20229.000000%22%20fill=%22currentColor%22%3E%3Cg%20transform=%22translate(0.000000,229.000000)%20scale(0.100000,-0.100000)%22%20fill=%22currentColor%22%20stroke=%22none%22%3E%20%3Cpath%20d=%22M992%202157%20c-13%20-7%20-33%20-28%20-45%20-47%20-12%20-19%20-30%20-45%20-39%20-59%20-20%20-30%20-38%20-68%20-38%20-82%200%20-5%20-7%20-9%20-15%20-9%20-10%200%20-15%20-10%20-15%20-30%200%20-17%20-9%20-48%20-20%20-70%20-18%20-35%20-23%20-38%20-52%20-34%20-57%207%20-412%2034%20-457%2034%20-34%200%20-49%20-6%20-72%20-29%20-25%20-26%20-29%20-37%20-29%20-85%200%20-51%20-2%20-56%20-25%20-62%20-48%20-12%20-65%20-48%20-65%20-136%200%20-92%209%20-115%2055%20-134%2051%20-21%201049%20-21%201100%200%2046%2019%2055%2042%2055%20133%200%2086%20-13%20117%20-56%20133%20-17%207%20-24%2017%20-24%2035%200%2014%20-10%2036%20-23%2049%20-25%2025%20-53%2031%20-199%2042%20-49%203%20-88%2010%20-88%2015%200%205%207%209%2015%209%209%200%2020%2011%2025%2025%205%2014%2014%2025%2020%2025%205%200%2010%209%2010%2019%200%2010%206%2021%2014%2024%209%203%2012%2014%209%2025%20-3%2012%201%2022%2011%2025%209%204%2016%2016%2016%2027%200%2011%206%2020%2013%2020%207%200%2080%20-43%20162%20-96%20162%20-104%20182%20-109%20210%20-54%2024%2046%2019%2067%20-22%2093%20-79%2049%20-380%20207%20-394%20207%20-8%20-1%20-24%20-6%20-37%20-13z%20m226%20-108%20c92%20-51%20168%20-93%20170%20-94%201%20-1%20-5%20-18%20-15%20-36%20-10%20-19%20-19%20-35%20-20%20-37%20-1%20-2%20-62%2035%20-137%2083%20-85%2055%20-142%2085%20-152%2081%20-8%20-3%20-28%201%20-43%209%20-42%2021%20-46%206%20-9%20-28%2033%20-30%2033%20-30%2010%20-40%20-12%20-6%20-22%20-19%20-22%20-29%200%20-18%20-1%20-19%20-30%20-2%20-42%2025%20-51%208%20-11%20-23%2042%20-33%2023%20-49%20-25%20-21%20-27%2016%20-34%2017%20-34%206%200%20-8%2011%20-21%2025%20-28%2014%20-7%2025%20-20%2025%20-28%200%20-10%20-8%20-9%20-34%208%20-40%2024%20-60%2010%20-22%20-15%2036%20-24%2024%20-41%20-24%20-37%20-22%202%20-40%206%20-40%208%200%203%209%2022%2020%2044%2011%2022%2020%2046%2020%2055%200%208%205%2015%2010%2015%206%200%2010%208%2010%2018%200%209%207%2025%2014%2035%2012%2015%2018%2016%2035%208%2011%20-6%2024%20-11%2030%20-11%2020%200%2011%2020%20-14%2032%20-28%2012%20-33%2036%20-10%2044%208%203%2023%2021%2034%2040%2015%2025%2027%2034%2046%2034%2014%200%20101%20-41%20193%20-91z%20m212%20-142%20c0%20-13%20-9%20-32%20-20%20-42%20-18%20-17%20-20%20-17%20-26%20-1%20-4%2010%20-2%2028%204%2042%2015%2031%2042%2032%2042%201z%22/%3E%20%3Cpath%20d=%22M675%201299%20c-126%20-21%20-235%20-78%20-331%20-173%20-113%20-113%20-164%20-241%20-164%20-411%200%20-169%2050%20-295%20164%20-410%20170%20-172%20440%20-230%20681%20-147%2086%2030%20203%20104%20231%20146%2014%2023%2012%2026%20-51%2086%20-103%2099%20-100%2098%20-143%2058%20-78%20-73%20-165%20-103%20-276%20-96%20-211%2014%20-346%20172%20-334%20391%206%20107%2038%20177%20114%20246%20130%20119%20336%20122%20485%207%20l57%20-44%2083%2079%2084%2079%20-55%2051%20c-128%20118%20-342%20172%20-545%20138z%22/%3E%20%3Cpath%20d=%22M739%20985%20c-90%20-33%20-138%20-86%20-109%20-120%2017%20-20%2032%20-19%2081%207%20116%2060%20234%20-8%20232%20-133%20-2%20-159%20-212%20-217%20-304%20-83%20-32%2047%20-57%2055%20-83%2028%20-20%20-20%20-20%20-22%204%20-86%2044%20-117%20139%20-182%20265%20-182%20124%200%20209%2056%20263%20173%2021%2046%2024%2063%2020%20135%20-5%2093%20-21%20131%20-81%20194%20-70%2072%20-195%20102%20-288%2067z%22/%3E%20%3C/g%3E%3C/svg%3E");
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+/* In-page jumps (the hero's أوقات الدوام button) glide rather than snap. The
+   reduced-motion block at the end of this file puts it back to an instant jump. */
+html{scroll-behavior:smooth}
+/* The cart drawer is position:fixed and parked off the inline edge; a fixed
+   element off-screen can extend the page's scrollable width and give mobile a
+   phantom horizontal scroll / rubber-band. `clip` on both axes' owner stops
+   that. Deliberately `clip`, not `hidden`: clip never establishes a scroll
+   container, so the sticky header and toolbar keep working. Page-level content
+   never scrolls sideways here — the chip rows scroll inside their own
+   overflow-x:auto containers, which this does not touch. */
+html,body{overflow-x:clip}
+body{font-family:var(--f-body);color:var(--ink);background:var(--white);line-height:1.7;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--f-ar);line-height:1.15}
+a{text-decoration:none;color:inherit}
+img{max-width:100%;display:block}
+.wrap{width:min(100% - var(--wrap-gutter),var(--wrap-max));margin-inline:auto}
+.word{font-family:var(--f-word);font-weight:800;letter-spacing:-.02em}
+
+/* header */
+header{position:sticky;top:0;z-index:var(--z-header);background:var(--white);border-bottom:var(--bw) solid var(--pine)}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:var(--s-5) 0;min-height:calc(var(--header-h) - var(--bw))}
+.logo{display:flex;align-items:center;gap:var(--s-4)}
+.logo .mark{width:var(--mark-size);height:var(--mark-size);border-radius:var(--r-sm);background:var(--green);color:var(--white);display:grid;place-items:center;font-family:var(--f-word);font-weight:800;font-size:1.3rem}
+.logo .mark .cmark{height:var(--mark-glyph);color:var(--white)}
+.logo .name{font-family:var(--f-word);font-weight:800;font-size:1.3rem;color:var(--pine)}
+.order-cta{background:var(--pine);color:var(--mint);padding:var(--s-4) 1.3rem;border-radius:var(--r-sm);font-family:var(--f-ar);font-weight:700;font-size:.92rem;transition:var(--t-fast)}
+.order-cta:hover{background:var(--green)}
+
+/* hero — asymmetric with green block; both columns equal height (stretch) */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(1.6rem,4vw,var(--s-9));align-items:stretch;padding:clamp(2.5rem,6vw,4.5rem) 0}
+.hero .col-text{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;text-align:right}
+.kick{display:inline-block;background:var(--gold);color:var(--pine);font-family:var(--f-ar);font-weight:800;font-size:.85rem;padding:var(--s-2) 1rem;border-radius:var(--r-pill);margin-bottom:var(--s-6)}
+/* headline + logo lockup read as one tight unit, sharing the right edge (RTL) */
+.hero .headline{display:flex;flex-direction:column;align-items:flex-start;gap:.1rem;margin-bottom:var(--s-1)}
+.hero h1{font-size:clamp(2rem,5.4vw,3.4rem);color:var(--pine);line-height:1.08;margin:0}
+.hero h1 .g{color:var(--green)}
+.hero .lockup{width:min(var(--lockup-max),90%);color:var(--pine);margin:-.1rem 0 0}
+.hero .word-xl{font-family:var(--f-word);font-weight:800;font-size:clamp(var(--s-9),8vw,5.5rem);color:var(--pine);line-height:.95;letter-spacing:-.03em}
+.hero p{color:var(--soft);font-size:1.1rem;max-width:40ch;margin:1.3rem 0 var(--s-8)}
+.actions{display:flex;gap:.7rem;flex-wrap:wrap}
+.btn-green{background:var(--green);color:var(--white);padding:var(--s-5) var(--s-8);border-radius:var(--r-md);font-family:var(--f-ar);font-weight:800;transition:var(--t-fast)}
+.btn-green:hover{background:var(--pine)}
+.btn-ghost{border:var(--bw) solid var(--pine);color:var(--pine);padding:var(--s-5) var(--s-8);border-radius:var(--r-md);font-family:var(--f-ar);font-weight:800;transition:var(--t-fast)}
+.btn-ghost:hover{background:var(--pine);color:var(--mint)}
+.hero-art{border-radius:var(--r-2xl);background:
+  linear-gradient(135deg,var(--green),var(--pine));
+  position:relative;overflow:hidden;display:grid;place-items:center;min-height:min(78vw,var(--hero-art-max))}
+.hero-art .big{font-family:var(--f-word);font-weight:800;font-size:clamp(4rem,12vw,8rem);color:var(--tint-mint-faint)}
+.hero-art .logo-full{width:46%;color:var(--tint-mint-ghost)}
+.hero-art .badge{position:absolute;inset-block-end:1.2rem;inset-inline-start:1.2rem;background:var(--gold);color:var(--pine);font-family:var(--f-ar);font-weight:800;padding:var(--s-3) var(--s-6);border-radius:var(--r-pill);font-size:.9rem}
+.hero-art .dot{position:absolute;width:var(--dot);height:var(--dot);border-radius:50%;background:var(--tint-gold-soft);inset-block-start:var(--dot-offset);inset-inline-end:var(--dot-offset)}
+
+/* --- hero slideshow (index.html) ---------------------------------------
+   Mounted by app.js only when the data carries ≥2 real featured photos; until
+   then none of this applies and the panel keeps its logo placeholder. The
+   slides fill the panel absolutely, so mounting causes no layout shift — the
+   panel's own min-height / aspect-ratio still set the box — and overflow:hidden
+   on .hero-art clips them to its rounded corners. */
+.hero-art.is-slideshow{display:block}
+.hero-slides{position:absolute;inset:0}
+.hero-slide{position:absolute;inset:0;inline-size:100%;block-size:100%;
+  object-fit:cover;opacity:0;transition:opacity .6s ease}
+.hero-slide.is-active{opacity:1}
+/* opposite corner from the gold badge so the two never collide */
+.hero-dots{position:absolute;z-index:2;inset-block-end:1.2rem;inset-inline-end:1.2rem;
+  display:flex;gap:var(--s-3)}
+.hero-dot{inline-size:.6rem;block-size:.6rem;padding:0;border-radius:50%;cursor:pointer;
+  border:var(--bw) solid var(--white);background:transparent;transition:var(--t-fast)}
+.hero-dot:hover{background:var(--tint-gold-soft)}
+.hero-dot.is-active{background:var(--white)}
+
+/* strip */
+.strip{background:var(--pine);color:var(--mint);border-radius:var(--r-xl);display:flex;justify-content:space-around;flex-wrap:wrap;gap:1rem;padding:var(--s-7);text-align:center;font-family:var(--f-ar);font-weight:700}
+.strip span{color:var(--gold)}
+
+/* menu */
+.section{padding:clamp(2.5rem,7vw,4.5rem) 0}
+.sec-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:var(--s-8);flex-wrap:wrap}
+.sec-head h2{font-size:clamp(1.9rem,4.5vw,2.8rem);color:var(--pine)}
+.sec-head h2 .u{border-bottom:var(--bw-underline) solid var(--gold);padding-bottom:var(--bw)}
+/* The landing preview filter row. The chips themselves are the shared .chip
+   buttons (styled once, further down with the menu page's chip-row) — this
+   container only lays them out. Unlike the menu's .chip-row it wraps instead
+   of scrolling, since it sits inline beside the section heading. */
+.chips{display:flex;gap:var(--s-3);flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--card-min),1fr));gap:var(--s-6)}
+.card{border:var(--bw) solid var(--mint);border-radius:var(--r-lg);overflow:hidden;transition:var(--t-fast);background:var(--white)}
+.card:hover{border-color:var(--green);transform:var(--lift)}
+.card .top{background:var(--mint);aspect-ratio:16/10;display:grid;place-items:center;font-size:2.6rem;position:relative;overflow:hidden}
+/* Placeholder for an item with no photo: the Cerablus mark, tinted brand green
+   over the mint tile. Every image zone gets it; a real photo simply covers it. */
+.card .top::after{content:"";position:absolute;inset:0;pointer-events:none;background:var(--green);opacity:var(--ph-opacity);
+  -webkit-mask-image:var(--mark-mask);mask-image:var(--mark-mask);
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-size:var(--ph-size);mask-size:var(--ph-size)}
+/* real photo fills the tile; the placeholder stays behind as a graceful
+   fallback (z-index 1 keeps the photo above it), badge sits above both */
+.card .top img{position:absolute;z-index:1;inset:0;width:100%;height:100%;object-fit:cover;transition:transform var(--t-slow) ease}
+.card:hover .top img{transform:scale(1.05)}
+/* app.js flags an image whose file is missing or misspelled, revealing the
+   placeholder instead of the browser's broken-image icon */
+.card .top img.is-missing{display:none}
+.card .top .fav{position:absolute;z-index:2;inset-block-start:var(--s-4);inset-inline-start:var(--s-4);background:var(--gold);color:var(--pine);font-family:var(--f-ar);font-weight:800;font-size:.65rem;padding:var(--s-1) var(--s-4);border-radius:var(--r-pill)}
+.card .b{padding:var(--s-5) 1rem var(--s-6)}
+.card h3{font-size:1.1rem;color:var(--pine);margin-bottom:var(--s-1)}
+.card p{font-size:.82rem;color:var(--soft);margin-bottom:.7rem;min-height:2.3em}
+.card .r{display:flex;align-items:center;justify-content:space-between}
+.card .price{font-family:var(--f-ar);font-weight:900;color:var(--green);font-size:1.2rem}
+.card .add{border:0;cursor:pointer;background:var(--pine);color:var(--mint);font-family:var(--f-ar);font-weight:700;font-size:.82rem;padding:.45rem var(--s-5);border-radius:var(--r-xs);transition:var(--t-fast)}
+.card .add:hover{background:var(--green)}
+/* The landing page's cards carry a link into the menu instead of an add
+   button (there is no cart on that page), so it needs a box to pad. */
+.card a.add{display:inline-block;text-align:center}
+
+/* the landing page's preview row, and the link on to the full menu */
+.sec-more{margin-top:var(--s-8);text-align:center}
+
+/* Anchor jumps must clear the sticky header — without this, #hours lands with
+   the top of the band tucked underneath it. */
+#hours{scroll-margin-block-start:var(--header-h)}
+
+/* footer */
+footer{background:var(--pine);color:var(--mint);padding:var(--s-9) 0 2rem;text-align:center;margin-top:2rem}
+/* the footer wordmark sits inline with the cup glyph */
+footer .word{font-size:2.2rem;color:var(--white);margin-bottom:.3rem;display:inline-flex;align-items:center;gap:var(--s-4);justify-content:center}
+footer .word b{color:var(--gold)}
+footer .word .cmark{height:var(--mark-glyph-lg);color:var(--gold)}
+footer .meta{color:var(--tint-mint-soft);font-size:.9rem;margin-bottom:1.2rem}
+footer .wa{display:inline-flex;align-items:center;gap:var(--s-3);background:var(--gold);color:var(--pine);padding:.8rem 1.7rem;border-radius:var(--r-md);font-family:var(--f-ar);font-weight:800}
+
+/* NOTE: media query conditions cannot read CSS custom properties, so this
+   breakpoint stays a literal value. It matches --hero-art-mobile's context. */
+@media(max-width:760px){.hero{grid-template-columns:1fr;gap:1.6rem}.hero .col-text{justify-content:flex-start}.hero-art{aspect-ratio:1;min-height:0;width:100%;max-width:var(--hero-art-mobile)}}
+
+/* --- real Cerablus logo --- */
+.cmark{display:inline-flex;line-height:0}
+.cmark svg{height:100%;width:auto;display:block}
+.logo-full{line-height:0}
+.logo-full svg{width:100%;height:auto;display:block}
+
+/* ==========================================================================
+   MENU PAGE (menu.html)
+   Extends the landing page's components rather than restating them: the item
+   card reuses .card / .top / .fav / .price / .add from above, and only the
+   states unique to the menu are defined here.
+   ========================================================================== */
+
+/* visually hidden, still read by screen readers */
+.sr-only{position:absolute;width:var(--hair);height:var(--hair);padding:0;margin:calc(var(--hair) * -1);overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+
+/* keyboard focus — never shown for mouse users, always clear for keyboard */
+:focus-visible{outline:var(--bw) solid var(--gold);outline-offset:var(--s-1)}
+
+/* --- header cart button --- */
+.nav-actions{display:flex;align-items:center;gap:var(--s-3)}
+.cart-btn{position:relative;display:inline-grid;place-items:center;flex:0 0 auto;
+  width:var(--mark-size);height:var(--mark-size);border:var(--bw) solid var(--pine);
+  border-radius:var(--r-sm);background:var(--white);color:var(--pine);cursor:pointer;transition:var(--t-fast)}
+.cart-btn:hover{background:var(--pine);color:var(--mint)}
+.cart-btn .i{width:60%;height:60%}
+/* count badge hangs off the outer top corner, mirrored automatically in RTL */
+.cart-btn .count{position:absolute;inset-block-start:calc(var(--s-3) * -1);inset-inline-start:calc(var(--s-3) * -1);
+  min-width:var(--s-8);padding:0 var(--s-1);border-radius:var(--r-pill);
+  background:var(--green);color:var(--white);font-family:var(--f-word);font-weight:700;font-size:.7rem;line-height:var(--s-8)}
+
+/* --- menu intro (shorter than the landing hero so the list starts high) --- */
+.menu-intro{display:flex;flex-direction:column;align-items:flex-start;text-align:right;padding:var(--s-8) 0 var(--s-6)}
+.menu-intro h1{font-size:clamp(2rem,5.4vw,3.4rem);color:var(--pine);line-height:1.08}
+.menu-intro p{color:var(--soft);font-size:1.1rem;max-width:46ch;margin-top:var(--s-3)}
+
+/* --- sticky toolbar: sits directly under the sticky header --- */
+.toolbar{position:sticky;top:var(--header-h);z-index:var(--z-toolbar);
+  background:var(--white);border-bottom:var(--bw) solid var(--mint);padding-block:var(--s-4)}
+
+.search{position:relative;display:flex;align-items:center}
+.search .icon{position:absolute;inset-inline-start:var(--s-5);width:1.15rem;height:1.15rem;color:var(--soft);pointer-events:none}
+.search input{width:100%;font-family:var(--f-body);font-size:1rem;color:var(--ink);
+  background:var(--white);border:var(--bw) solid var(--mint);border-radius:var(--r-md);
+  padding-block:var(--s-4);padding-inline:calc(var(--s-5) * 2 + 1.15rem);transition:var(--t-fast)}
+.search input::placeholder{color:var(--soft)}
+.search input:focus{border-color:var(--green)}
+/* the browser's own search affordances would fight the custom clear button */
+.search input::-webkit-search-cancel-button{display:none}
+/* Step 3 toggles [hidden] on this when the field is empty */
+.search .clear{position:absolute;inset-inline-end:var(--s-4);display:grid;place-items:center;
+  width:var(--s-8);height:var(--s-8);border:0;border-radius:var(--r-pill);
+  background:var(--mint);color:var(--pine);cursor:pointer;transition:var(--t-fast)}
+.search .clear:hover{background:var(--green);color:var(--white)}
+.search .clear svg{width:65%;height:65%}
+.search .clear[hidden]{display:none}
+
+/* --- category chips: swipeable on touch, scrollbar hidden --- */
+.chip-row{display:flex;gap:var(--s-3);margin-top:var(--s-4);
+  overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;
+  -webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+.chip-row::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;scroll-snap-align:start;white-space:nowrap;cursor:pointer;
+  font-family:var(--f-ar);font-weight:700;font-size:.85rem;padding:.4rem 1rem;
+  border-radius:var(--r-pill);border:var(--bw-hair) solid var(--tint-line);
+  background:var(--white);color:var(--soft);transition:var(--t-fast)}
+.chip:hover{border-color:var(--green);color:var(--green)}
+.chip.is-active{background:var(--green);color:var(--white);border-color:var(--green)}
+
+/* --- category section --- */
+/* clears the sticky header + toolbar when jumped to via a chip or anchor */
+.cat{scroll-margin-top:calc(var(--stick) + var(--s-6))}
+.cat + .cat{margin-top:var(--s-9)}
+.cat-head{display:flex;align-items:center;gap:var(--s-3);margin-bottom:var(--s-6);
+  font-size:clamp(1.4rem,3.5vw,1.9rem);color:var(--pine)}
+.cat-head .count{font-family:var(--f-word);font-weight:700;font-size:.75rem;color:var(--soft)}
+/* trailing rule, echoing the gold underline on the landing page's headings */
+.cat-head::after{content:"";flex:1;height:var(--bw);background:var(--mint);border-radius:var(--r-pill)}
+
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--card-min),1fr));gap:var(--s-6)}
+
+/* --- item card: extra states on top of the shared .card --- */
+/* Grid items already stretch to equal height; making the card and its body
+   flex columns lets the price row absorb the slack, so the price + "أضف +"
+   rows line up across a row of cards whatever the description length or
+   whether the item has size pills. The landing page's preview row renders the
+   same cards from the same builder, so it takes the same treatment. */
+.menu-grid .card,#previewGrid .card{display:flex;flex-direction:column}
+/* Off-screen cards skip style, layout and paint.
+   ------------------------------------------------------------------------
+   Measured against the client's real volume (113 items) in Chromium at a
+   380px viewport: building the whole list in JS costs ~5ms, but laying it out
+   costs ~105ms — and a full re-render happens on every keystroke and every
+   chip. Containing the cards the customer cannot see takes that ~105ms down to
+   ~13ms, which is what makes search feel live on a phone.
+   contain-intrinsic-size gives a skipped card a stand-in height so the
+   scrollbar stays honest; `auto` means the browser remembers each card's real
+   height after it has been rendered once. A browser without support just lays
+   everything out as it did before — slower, never broken. */
+.menu-grid .card{content-visibility:auto;contain-intrinsic-size:auto 320px}
+.menu-grid .card .b,#previewGrid .card .b{display:flex;flex-direction:column;flex:1}
+.menu-grid .card .r,#previewGrid .card .r{margin-top:auto}
+
+/* "غير متوفر" tag — pine, so it never reads as the gold "مميّز" badge */
+.card .top .tag-out{position:absolute;z-index:2;inset-block-start:var(--s-4);inset-inline-start:var(--s-4);
+  background:var(--pine);color:var(--mint);font-family:var(--f-ar);font-weight:800;
+  font-size:.65rem;padding:var(--s-1) var(--s-4);border-radius:var(--r-pill)}
+
+/* size / variant pills — styled only; Step 4 makes them interactive */
+.sizes{display:flex;gap:var(--s-2);flex-wrap:wrap;margin-bottom:var(--s-4)}
+.size{cursor:pointer;font-family:var(--f-ar);font-weight:700;font-size:.72rem;
+  padding:var(--s-1) var(--s-4);border-radius:var(--r-pill);
+  border:var(--bw-hair) solid var(--tint-line);background:var(--white);color:var(--soft);transition:var(--t-fast)}
+.size:hover{border-color:var(--green);color:var(--green)}
+.size.is-active{background:var(--mint);border-color:var(--green);color:var(--pine)}
+
+/* "عرض" badge — solid green against the gold "مميّز", so the two are never
+   confused at a glance even though they share the same corner. */
+.card .top .tag-offer{position:absolute;z-index:2;inset-block-start:var(--s-4);inset-inline-start:var(--s-4);
+  background:var(--green);color:var(--white);font-family:var(--f-ar);font-weight:800;
+  font-size:.65rem;padding:var(--s-1) var(--s-4);border-radius:var(--r-pill)}
+
+/* live price and any struck-through old price travel together as one flex item */
+.price-wrap{display:flex;align-items:baseline;flex-wrap:wrap;gap:var(--s-3);min-width:0}
+
+/* struck-through previous price */
+.price-old{font-family:var(--f-ar);font-weight:700;font-size:.85rem;color:var(--soft);
+  text-decoration:line-through}
+
+/* unavailable: dim the content but keep the tag and border legible.
+   Dimming parts rather than the whole card, because opacity on the parent
+   cannot be undone on a child. */
+.card.is-out{border-color:var(--mint)}
+.card.is-out:hover{transform:none;border-color:var(--mint)}
+.card.is-out .top::after{opacity:calc(var(--ph-opacity) / 2)}
+.card.is-out h3,.card.is-out p,.card.is-out .price,.card.is-out .price-old,.card.is-out .sizes{opacity:var(--dim)}
+.card .add:disabled{background:var(--mint);color:var(--soft);cursor:not-allowed}
+.card .add:disabled:hover{background:var(--mint)}
+
+/* --- empty state: no search / filter results --- */
+/* A floor under the list so swapping a full grid for the short empty message
+   does not yank the footer up the page mid-typing. */
+#menuBody{min-height:var(--body-min)}
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;
+  gap:var(--s-3);padding:var(--s-9) var(--s-6);
+  border:var(--bw) dashed var(--mint);border-radius:var(--r-lg)}
+/* the Cerablus mark again, matching the card placeholder's tinted treatment */
+.empty-mark{width:var(--empty-mark);height:var(--empty-mark);background:var(--green);
+  opacity:var(--ph-opacity);
+  -webkit-mask-image:var(--mark-mask);mask-image:var(--mark-mask);
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-size:contain;mask-size:contain}
+/* h1 on 404.html, where the message IS the page's heading; h2 in the menu's
+   in-page empty states. Same block either way. */
+.empty h1,.empty h2{font-size:clamp(1.4rem,3.5vw,1.9rem);color:var(--pine)}
+.empty p{color:var(--soft);font-size:.95rem}
+/* 404.html: the two ways out of a dead end */
+.empty .actions{justify-content:center;margin-top:var(--s-5)}
+/* and the same floor the menu list has, so a short page does not leave the
+   footer band riding up under the header */
+#notfound{min-height:var(--body-min);display:grid;align-content:center}
+
+/* ==========================================================================
+   CART DRAWER
+   ========================================================================== */
+
+[dir="ltr"]{--drawer-off:100%}
+
+/* background scroll lock while the drawer is open */
+body.is-locked{overflow:hidden}
+
+/* the count badge disappears rather than sitting at a meaningless zero */
+.cart-btn .count.is-empty{display:none}
+
+/* brief pulse confirming a tap landed */
+.card .add.is-added{background:var(--green);animation:add-pulse var(--t-slow) ease}
+@keyframes add-pulse{50%{transform:scale(1.12)}}
+
+.drawer-overlay{position:fixed;inset:0;z-index:var(--z-overlay);background:var(--overlay)}
+.drawer-overlay[hidden]{display:none}
+
+/* Anchored with logical properties so the panel hugs the inline-end edge in
+   either direction; visibility:hidden also takes it out of the tab order when
+   closed, so no focusable child is reachable behind the scenes. */
+.drawer{position:fixed;inset-block:0;inset-inline-end:0;z-index:var(--z-drawer);
+  display:flex;flex-direction:column;width:var(--drawer-w);
+  background:var(--white);border-inline-start:var(--bw) solid var(--pine);
+  border-start-start-radius:var(--r-xl);border-end-start-radius:var(--r-xl);
+  visibility:hidden;translate:var(--drawer-off) 0;
+  transition:translate var(--t-slow) ease,visibility var(--t-slow)}
+.drawer.is-open{visibility:visible;translate:0 0}
+
+.drawer-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s-5);
+  padding:var(--s-6) var(--s-7);border-bottom:var(--bw) solid var(--mint)}
+.drawer-head h2{font-size:1.5rem;color:var(--pine)}
+.drawer-close{display:grid;place-items:center;flex:0 0 auto;
+  width:var(--mark-size);height:var(--mark-size);
+  border:var(--bw) solid var(--pine);border-radius:var(--r-sm);
+  background:var(--white);color:var(--pine);cursor:pointer;transition:var(--t-fast)}
+.drawer-close:hover{background:var(--pine);color:var(--mint)}
+.drawer-close svg{width:55%;height:55%}
+
+/* only the line list scrolls, so the head and the total stay put */
+.drawer-body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:var(--s-6) var(--s-7)}
+
+.cart-line{display:flex;align-items:center;justify-content:space-between;gap:var(--s-5);
+  padding-block:var(--s-5)}
+.cart-line + .cart-line{border-top:var(--bw-hair) solid var(--mint)}
+.cl-info{min-width:0}
+.cl-name{font-size:1rem;color:var(--pine)}
+.cl-var{display:inline-block;background:var(--mint);color:var(--pine);
+  font-family:var(--f-ar);font-weight:700;font-size:.68rem;
+  padding:var(--s-1) var(--s-4);border-radius:var(--r-pill);margin-top:var(--s-2)}
+.cl-unit{display:block;font-size:.75rem;color:var(--soft)}
+.cl-side{display:flex;align-items:center;gap:var(--s-5);flex:0 0 auto}
+.cl-total{font-family:var(--f-ar);font-weight:900;color:var(--green);font-size:1rem;
+  min-width:5ch;text-align:end}
+
+/* stepper — same pill vocabulary as the size pills */
+.qty{display:flex;align-items:center;gap:var(--s-2);
+  border:var(--bw-hair) solid var(--tint-line);border-radius:var(--r-pill);padding:var(--s-1)}
+.q{width:var(--qty-btn);height:var(--qty-btn);display:grid;place-items:center;
+  border:0;border-radius:var(--r-pill);background:var(--mint);color:var(--pine);
+  font-family:var(--f-ar);font-weight:900;font-size:1rem;line-height:1;
+  cursor:pointer;transition:var(--t-fast)}
+.q:hover{background:var(--green);color:var(--white)}
+.q-n{min-width:2ch;text-align:center;font-family:var(--f-word);font-weight:700;font-size:.9rem}
+
+/* dark green band, echoing the footer */
+.drawer-foot{background:var(--pine);color:var(--mint);padding:var(--s-6) var(--s-7);
+  padding-bottom:max(var(--s-6),env(safe-area-inset-bottom))}
+.drawer-total{display:flex;align-items:center;justify-content:space-between;
+  font-family:var(--f-ar);font-weight:700;margin-bottom:var(--s-5)}
+.drawer-total .total{font-weight:900;font-size:1.4rem;color:var(--gold)}
+/* WhatsApp green is reserved for order actions — this is one */
+.order-btn{display:flex;align-items:center;justify-content:center;gap:var(--s-3);
+  width:100%;background:var(--wa);color:var(--pine);
+  font-family:var(--f-ar);font-weight:800;font-size:1rem;
+  padding:var(--s-5);border-radius:var(--r-md);transition:var(--t-fast)}
+.order-btn svg{width:1.15rem;height:1.15rem}
+.order-btn:hover{filter:brightness(1.06)}
+.order-btn.is-disabled{background:var(--tint-mint-ghost);color:var(--tint-mint-soft);
+  pointer-events:none}
+
+/* the drawer's empty state is the search one, minus the dashed frame */
+.empty-cart{border:0;padding:var(--s-8) var(--s-5)}
+
+/* --- mobile: two columns, tighter card typography --- */
+@media(max-width:760px){
+  .menu-grid{grid-template-columns:1fr 1fr;gap:var(--s-4)}
+  .menu-grid .card .b{padding:var(--s-4) var(--s-4) var(--s-5)}
+  .menu-grid .card h3{font-size:.95rem}
+  .menu-grid .card p{font-size:.75rem}
+  .menu-grid .card .price{font-size:1rem}
+  .menu-grid .card .price-old{font-size:.72rem}
+  .menu-grid .card .price-wrap{gap:var(--s-2)}
+  .menu-grid .card .add{font-size:.72rem;padding:var(--s-2) var(--s-4)}
+  .menu-grid .card .r{gap:var(--s-2);flex-wrap:wrap}
+
+  /* drawer: reclaim the horizontal room the stepper and total need */
+  .drawer-head,.drawer-body,.drawer-foot{padding-inline:var(--s-5)}
+  .cart-line{gap:var(--s-3)}
+  .cl-side{gap:var(--s-3)}
+  .cl-name{font-size:.9rem}
+  .cl-total{font-size:.9rem;min-width:4ch}
+}
+
+/* On narrow screens the logo + cart + CTA no longer fit on one line, and a
+   wrapped header would stand taller than index.html's, breaking both the
+   sticky offset and the "same site" feel. The cart button is the order path on
+   this page (and the footer keeps a WhatsApp CTA), so the header CTA steps
+   aside here only. Keeps every header exactly --header-h tall. */
+@media(max-width:560px){
+  .nav-actions .order-cta{display:none}
+}
+
+/* Direction C's motion is decorative only — hover lifts, the photo zoom, chip
+   and pill color fades. None of it carries meaning, so it all goes for anyone
+   who has asked their system to reduce motion. */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    transition-duration:.01ms !important;
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    scroll-behavior:auto !important}
+  .card:hover{transform:none}
+  .card:hover .top img{transform:none}
+  /* the add confirmation drops its scale pulse but keeps the color change,
+     so the tap is still acknowledged without any movement */
+  .card .add.is-added{animation:none}
+  /* the drawer appears instead of sliding; it still ends up in place */
+  .drawer{transition:none}
+}
