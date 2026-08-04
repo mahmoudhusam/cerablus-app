@@ -6,25 +6,47 @@ Next.js (App Router) + TypeScript + Prisma + Neon Postgres.
 - **Admin** (`/admin`) — single-owner login to manage the menu and item photos.
 
 See [CLAUDE.md](./CLAUDE.md) for the full spec and the step-by-step build order.
-**Current status: Step 2 complete** (scaffold + schema + Neon wiring + menu seeded).
-The database now holds the real menu and is the source of truth. No menu UI, admin,
-auth, or uploads yet.
+**Current status: Step 3 complete** — the public site is live off the database:
+a landing page at `/` and the full menu at `/menu`, with search, filters, a cart
+and WhatsApp ordering. No admin, auth, or image uploads yet (Steps 4–6).
 
 ## Layout
 
-| Path                  | What it is                                                        |
-| --------------------- | ----------------------------------------------------------------- |
-| `app/`                | Next.js App Router routes                                          |
-| `lib/prisma.ts`       | the one shared Prisma client — always import from here             |
-| `lib/generated/`      | generated Prisma client (gitignored, rebuilt by `prisma generate`) |
-| `prisma/schema.prisma`| database schema                                                    |
-| `prisma/migrations/`  | migration history                                                  |
-| `prisma/seed.ts`      | one-time menu migration from `reference/menu.js`                   |
-| `reference/menu.js`   | **seed input only** — the 133-item source menu                     |
-| `styles/styles.css`   | **reference only** — approved design C tokens, wired up in Step 3  |
+| Path                    | What it is                                                          |
+| ----------------------- | ------------------------------------------------------------------- |
+| `app/page.tsx`          | landing page (server component, prerendered)                        |
+| `app/menu/page.tsx`     | menu page (server component, prerendered)                           |
+| `components/menu/`      | the menu page's client tree — search, chips, cart, drawer           |
+| `components/landing/`   | landing-only client bits — hero panel, preview row                  |
+| `lib/menu-data.ts`      | **server only** — the cached Prisma read + `revalidateMenu()`        |
+| `lib/menu-types.ts`     | the menu shape the front-end consumes                               |
+| `lib/menu-format.ts`    | search normalizer, price formatting, badges (shared, pure)          |
+| `lib/menu-order.ts`     | cart model + the WhatsApp order message (shared, pure)              |
+| `lib/site.ts`           | **server only** — WhatsApp number, site URL                         |
+| `lib/prisma.ts`         | the one shared Prisma client — always import from here              |
+| `lib/generated/`        | generated Prisma client (gitignored, rebuilt by `prisma generate`)  |
+| `styles/styles.css`     | the live stylesheet — approved design C tokens                      |
+| `prisma/schema.prisma`  | database schema                                                     |
+| `prisma/seed.ts`        | one-time menu migration from `reference/menu.js`                    |
+| `reference/`            | **not built** — the old static site, kept as the port's source      |
 
-Neither reference file is imported by the app itself: `menu.js` is read only by the
-seed script, and `styles.css` gets wired up in Step 3.
+`reference/` holds the previous static build (`index.html`, `menu.html`, `app.js`,
+`styles.css`) plus `menu.js`. Nothing there ships: `menu.js` is read only by the seed
+script, and the rest is the design and behaviour this app was ported from. The live
+stylesheet is `styles/styles.css` — `reference/styles.css` is the untouched original.
+
+### How the pages are put together
+
+`/` and `/menu` are **server components**. They call `getMenu()`, which is the only
+place that touches Postgres, and hand the result to a client tree as a prop. Prisma
+never reaches the browser.
+
+- **Caching.** `getMenu()` is wrapped in `unstable_cache` under the tag `"menu"` with
+  a one-hour TTL, and both routes set `revalidate = 3600`, so they are prerendered
+  and served from the Full Route Cache. A visitor never waits on a Neon cold start.
+- **Invalidation.** `revalidateMenu()` in `lib/menu-data.ts` drops the tag and both
+  page paths. Step 5's admin mutations call it after every successful write, which is
+  what makes an edit show up without a redeploy.
 
 ## Setup
 
@@ -33,8 +55,8 @@ npm install          # also runs `prisma generate`
 cp .env.example .env.local
 ```
 
-Then fill in `.env.local`. Only the two database URLs are needed right now; the
-rest are placeholders for later steps.
+Then fill in `.env.local`. The two database URLs and `CERABLUS_WHATSAPP_PHONE` are
+what the public site needs; the rest are placeholders for later steps.
 
 ### Getting the Neon URLs
 
@@ -83,6 +105,15 @@ so it is safe to re-run and cannot leave a half-seeded database.
 > This is a migration, not a maintenance tool. Rows get fresh ids on every run, so
 > once the owner has uploaded photos or edited items through the admin (Steps 5–6),
 > re-running the seed will discard that work.
+
+### The WhatsApp number
+
+Set `CERABLUS_WHATSAPP_PHONE` to the café's number in international format, digits
+only (e.g. `963xxxxxxxxx`). It is read on the server in `lib/site.ts` and passed into
+the client tree as a prop — deliberately not a `NEXT_PUBLIC_*` variable.
+
+**Until it is set, every wa.me link uses the placeholder `970590000000`** carried over
+from the old build, and `npm run dev` warns about it on each render.
 
 ## Commands
 

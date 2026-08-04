@@ -27,14 +27,10 @@
   --tint-mint-faint:rgba(var(--mint-rgb),.14);
   --tint-gold-soft:rgba(var(--gold-rgb),.25);
 
-  /* --- type ---
-     Same three families as before; they are now self-hosted by next/font
-     (app/layout.tsx) instead of fetched from Google, and each exposes a
-     --font-* variable. The quoted family stays as the fallback so these tokens
-     still resolve if a font ever fails to load. */
-  --f-ar:var(--font-cairo),"Cairo",sans-serif;                    /* Arabic display / headings */
-  --f-body:var(--font-plex-arabic),"IBM Plex Sans Arabic",sans-serif; /* Arabic body */
-  --f-word:var(--font-sora),"Sora",sans-serif;                    /* Latin wordmark / display */
+  /* --- type --- */
+  --f-ar:"Cairo",sans-serif;                  /* Arabic display / headings */
+  --f-body:"IBM Plex Sans Arabic",sans-serif; /* Arabic body */
+  --f-word:"Sora",sans-serif;                 /* Latin wordmark / display */
 
   /* --- radii --- */
   --r-xs:9px;
