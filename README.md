@@ -6,8 +6,9 @@ Next.js (App Router) + TypeScript + Prisma + Neon Postgres.
 - **Admin** (`/admin`) — single-owner login to manage the menu and item photos.
 
 See [CLAUDE.md](./CLAUDE.md) for the full spec and the step-by-step build order.
-**Current status: Step 1 complete** (scaffold + schema + Neon wiring). No menu UI,
-admin, auth, uploads, or seed data yet.
+**Current status: Step 2 complete** (scaffold + schema + Neon wiring + menu seeded).
+The database now holds the real menu and is the source of truth. No menu UI, admin,
+auth, or uploads yet.
 
 ## Layout
 
@@ -18,10 +19,12 @@ admin, auth, uploads, or seed data yet.
 | `lib/generated/`      | generated Prisma client (gitignored, rebuilt by `prisma generate`) |
 | `prisma/schema.prisma`| database schema                                                    |
 | `prisma/migrations/`  | migration history                                                  |
-| `reference/menu.js`   | **reference only** — 133-item seed source for Step 2               |
+| `prisma/seed.ts`      | one-time menu migration from `reference/menu.js`                   |
+| `reference/menu.js`   | **seed input only** — the 133-item source menu                     |
 | `styles/styles.css`   | **reference only** — approved design C tokens, wired up in Step 3  |
 
-The two `reference only` files are not imported by the app yet.
+Neither reference file is imported by the app itself: `menu.js` is read only by the
+seed script, and `styles.css` gets wired up in Step 3.
 
 ## Setup
 
@@ -67,6 +70,20 @@ npx prisma studio
 Use `npx prisma migrate dev --name <change>` for *subsequent* schema changes — it
 generates a new migration and applies it.
 
+### Seeding the menu
+
+```bash
+npm run seed         # or: npx prisma db seed
+```
+
+Reads `reference/menu.js` and writes 16 categories, 133 items and 95 variants into
+Postgres. It **wipes the three tables and re-inserts**, all inside one transaction,
+so it is safe to re-run and cannot leave a half-seeded database.
+
+> This is a migration, not a maintenance tool. Rows get fresh ids on every run, so
+> once the owner has uploaded photos or edited items through the admin (Steps 5–6),
+> re-running the seed will discard that work.
+
 ## Commands
 
 | Command              | What it does                                    |
@@ -77,3 +94,4 @@ generates a new migration and applies it.
 | `npm run db:deploy`  | apply pending migrations (use in CI / on Neon)  |
 | `npm run db:migrate` | create + apply a new migration (local dev)      |
 | `npm run db:studio`  | browse the database                             |
+| `npm run seed`       | wipe + reseed the menu from `reference/menu.js`  |

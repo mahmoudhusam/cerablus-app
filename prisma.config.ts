@@ -15,6 +15,8 @@ export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
+    // Lets `prisma db seed` run the same script `npm run seed` does.
+    seed: "tsx prisma/seed.ts",
   },
   datasource: {
     // This URL is used ONLY by the Prisma CLI (migrate / studio / db pull), so

@@ -55,7 +55,7 @@ for one.
 ## Build order (work ONE step at a time — do not work ahead)
 
 - [x] **Step 1** — Scaffold Next.js + TypeScript + Prisma; define the schema; connect Neon.
-- [ ] **Step 2** — Seed script: migrate the 133 items from `/reference/menu.js` into the database.
+- [x] **Step 2** — Seed script: migrate the 133 items from `/reference/menu.js` into the database.
 - [ ] **Step 3** — Public menu + landing: port design C to read from the DB. Reuse the
       cart, search, offers, and WhatsApp order flow from the old project.
 - [ ] **Step 4** — Admin auth: single-owner login (NextAuth), protect `/admin`.
