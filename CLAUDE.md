@@ -58,7 +58,7 @@ for one.
 - [x] **Step 2** — Seed script: migrate the 133 items from `/reference/menu.js` into the database.
 - [x] **Step 3** — Public menu + landing: port design C to read from the DB. Reuse the
       cart, search, offers, and WhatsApp order flow from the old project.
-- [ ] **Step 4** — Admin auth: single-owner login (NextAuth), protect `/admin`.
+- [x] **Step 4** — Admin auth: single-owner login (NextAuth), protect `/admin`.
 - [ ] **Step 5** — Admin CRUD: manage items and categories.
 - [ ] **Step 6** — Cloudinary image upload per item.
 - [ ] **Step 7** — Caching / revalidation, deploy to Vercel, custom domain.

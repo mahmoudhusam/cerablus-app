@@ -1,0 +1,248 @@
+/* ==========================================================================
+   Cerablus Coffee — admin styles
+
+   The admin is the same product as the public site, so it takes its colours,
+   fonts, radii and spacing from the SAME tokens: every value below is a
+   var(--…) declared in styles/styles.css. No new palette, no raw hex, no raw
+   px — if something is missing here, add the token there, not a literal here.
+
+   Logical properties only (inset-inline, margin-inline, padding-block), so the
+   RTL layout holds without any direction-specific rules.
+   ========================================================================== */
+
+.admin-root {
+  min-block-size: 100dvh;
+  background: var(--mint);
+  color: var(--ink);
+}
+
+/* --- shared brand lockup (login card + top bar) --- */
+.admin-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+}
+.admin-brand .mark {
+  width: var(--mark-size);
+  height: var(--mark-size);
+  border-radius: var(--r-sm);
+  background: var(--green);
+  color: var(--white);
+  display: grid;
+  place-items: center;
+}
+.admin-brand .mark .cmark {
+  height: var(--mark-glyph);
+  color: var(--white);
+}
+.admin-brand .name {
+  font-family: var(--f-word);
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: var(--pine);
+}
+.admin-tag {
+  font-family: var(--f-ar);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--soft);
+  border-inline-start: var(--bw-hair) solid var(--tint-line);
+  padding-inline-start: var(--s-4);
+  margin-inline-start: var(--s-2);
+}
+
+/* ==========================================================================
+   LOGIN
+   ========================================================================== */
+
+.admin-auth {
+  min-block-size: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--s-7);
+}
+
+.admin-card {
+  width: min(100%, 26rem);
+  background: var(--white);
+  border: var(--bw) solid var(--pine);
+  border-radius: var(--r-xl);
+  padding: var(--s-8);
+}
+.admin-card h1 {
+  font-size: 1.6rem;
+  color: var(--pine);
+  margin-block-start: var(--s-7);
+}
+
+.admin-lede {
+  color: var(--soft);
+  font-size: 0.95rem;
+  margin-block-start: var(--s-2);
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+  margin-block-start: var(--s-8);
+}
+
+.admin-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.admin-field span {
+  font-family: var(--f-ar);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--pine);
+}
+/* dir="ltr" on the inputs (credentials are Latin), but the field still sits in
+   the RTL flow — text-align:start would follow the input's own direction, so
+   this is left to the element's dir attribute rather than forced here. */
+.admin-field input {
+  font-family: var(--f-body);
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--white);
+  border: var(--bw) solid var(--mint);
+  border-radius: var(--r-md);
+  padding-block: var(--s-4);
+  padding-inline: var(--s-5);
+  transition: var(--t-fast);
+}
+.admin-field input:focus {
+  border-color: var(--green);
+}
+
+.admin-error {
+  font-family: var(--f-ar);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--pine);
+  background: var(--mint);
+  border-inline-start: var(--bw-underline) solid var(--gold);
+  border-radius: var(--r-sm);
+  padding: var(--s-4) var(--s-5);
+}
+
+.admin-submit {
+  border: 0;
+  cursor: pointer;
+  background: var(--green);
+  color: var(--white);
+  font-family: var(--f-ar);
+  font-weight: 800;
+  font-size: 1rem;
+  padding: var(--s-5);
+  border-radius: var(--r-md);
+  transition: var(--t-fast);
+}
+.admin-submit:hover {
+  background: var(--pine);
+}
+.admin-submit:disabled {
+  background: var(--soft);
+  cursor: progress;
+}
+
+/* ==========================================================================
+   DASHBOARD SHELL
+   ========================================================================== */
+
+.admin-bar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--z-header);
+  background: var(--white);
+  border-block-end: var(--bw) solid var(--pine);
+}
+.admin-bar-inner {
+  width: min(100% - var(--wrap-gutter), var(--wrap-max));
+  margin-inline: auto;
+  min-block-size: calc(var(--header-h) - var(--bw));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-5);
+  flex-wrap: wrap;
+  padding-block: var(--s-4);
+}
+.admin-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+}
+.admin-who {
+  font-family: var(--f-word);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--soft);
+}
+.admin-signout {
+  cursor: pointer;
+  background: var(--white);
+  color: var(--pine);
+  border: var(--bw) solid var(--pine);
+  border-radius: var(--r-sm);
+  font-family: var(--f-ar);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: var(--s-3) var(--s-6);
+  transition: var(--t-fast);
+}
+.admin-signout:hover {
+  background: var(--pine);
+  color: var(--mint);
+}
+
+.admin-main {
+  width: min(100% - var(--wrap-gutter), var(--wrap-max));
+  margin-inline: auto;
+  padding-block: var(--s-9);
+}
+
+.admin-page h1 {
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  color: var(--pine);
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--card-min), 1fr));
+  gap: var(--s-6);
+  margin-block-start: var(--s-8);
+}
+.admin-stat {
+  background: var(--white);
+  border: var(--bw) solid var(--mint);
+  border-radius: var(--r-lg);
+  padding: var(--s-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+.admin-stat .n {
+  font-family: var(--f-word);
+  font-weight: 800;
+  font-size: 2.2rem;
+  color: var(--green);
+  line-height: 1;
+}
+.admin-stat .l {
+  font-family: var(--f-ar);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--soft);
+}
+
+.admin-note {
+  margin-block-start: var(--s-8);
+  color: var(--soft);
+  font-size: 0.9rem;
+  border: var(--bw) dashed var(--tint-line);
+  border-radius: var(--r-lg);
+  padding: var(--s-6);
+}
