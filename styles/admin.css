@@ -249,3 +249,189 @@
   border-radius: var(--r-lg);
   padding: var(--s-6);
 }
+
+/* ==========================================================================
+   CRUD SCREENS (Step 5)
+   Same rule as the rest of this file: every value is a var(--…) token from
+   styles/styles.css. Logical properties only, so RTL holds with no flips.
+   ========================================================================== */
+
+.admin-page-narrow { max-inline-size: 46rem; }
+
+.admin-page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-5);
+  flex-wrap: wrap;
+  margin-block-end: var(--s-7);
+}
+.admin-page-actions { display: flex; gap: var(--s-3); flex-wrap: wrap; }
+
+/* --- buttons --- */
+.admin-btn {
+  display: inline-block;
+  cursor: pointer;
+  border: var(--bw) solid var(--green);
+  background: var(--green);
+  color: var(--white);
+  font-family: var(--f-ar);
+  font-weight: 700;
+  font-size: .9rem;
+  padding: var(--s-3) var(--s-6);
+  border-radius: var(--r-sm);
+  transition: var(--t-fast);
+  text-align: center;
+}
+.admin-btn:hover { background: var(--pine); border-color: var(--pine); }
+.admin-btn:disabled { opacity: var(--dim); cursor: not-allowed; }
+.admin-btn-sm { font-size: .8rem; padding: var(--s-2) var(--s-4); }
+.admin-btn-ghost { background: var(--white); color: var(--pine); border-color: var(--tint-line); }
+.admin-btn-ghost:hover { background: var(--mint); color: var(--pine); border-color: var(--green); }
+.admin-btn-danger { background: var(--white); color: var(--danger); border-color: var(--danger-line); }
+.admin-btn-danger:hover { background: var(--danger); color: var(--white); border-color: var(--danger); }
+
+.admin-icon-btn {
+  cursor: pointer;
+  inline-size: var(--qty-btn);
+  block-size: var(--qty-btn);
+  display: grid;
+  place-items: center;
+  border: var(--bw-hair) solid var(--tint-line);
+  border-radius: var(--r-sm);
+  background: var(--white);
+  color: var(--pine);
+  font-size: .9rem;
+  transition: var(--t-fast);
+}
+.admin-icon-btn:hover:not(:disabled) { background: var(--mint); border-color: var(--green); }
+.admin-icon-btn:disabled { opacity: var(--dim); cursor: not-allowed; }
+.admin-icon-danger { color: var(--danger); }
+
+/* --- flash + inline messages --- */
+.admin-flash {
+  font-family: var(--f-ar);
+  font-weight: 700;
+  font-size: .9rem;
+  padding: var(--s-4) var(--s-6);
+  border-radius: var(--r-sm);
+  margin-block-end: var(--s-6);
+}
+.admin-flash-ok { background: var(--mint); color: var(--pine); border-inline-start: var(--bw-underline) solid var(--green); }
+.admin-flash-error { background: var(--danger-tint); color: var(--danger); border-inline-start: var(--bw-underline) solid var(--danger); }
+.admin-field-error { display: block; font-style: normal; font-size: .8rem; color: var(--danger); margin-block-start: var(--s-2); }
+.admin-field-ok { display: block; font-style: normal; font-size: .8rem; color: var(--green); margin-block-start: var(--s-2); }
+.admin-hint { font-size: .8rem; color: var(--soft); margin-block-start: var(--s-2); }
+.admin-empty { color: var(--soft); padding: var(--s-8); text-align: center; border: var(--bw) dashed var(--tint-line); border-radius: var(--r-lg); }
+.admin-empty a { color: var(--green); text-decoration: underline; }
+
+/* --- toolbar --- */
+.admin-toolbar {
+  display: flex;
+  gap: var(--s-5);
+  align-items: end;
+  flex-wrap: wrap;
+  margin-block-end: var(--s-7);
+}
+.admin-field-grow { flex: 1 1 14rem; }
+.admin-count { font-family: var(--f-word); font-weight: 700; font-size: .8rem; color: var(--soft); }
+
+/* --- grouped rows --- */
+.admin-group + .admin-group { margin-block-start: var(--s-8); }
+.admin-group-head {
+  display: flex; align-items: center; gap: var(--s-3);
+  font-size: 1.15rem; color: var(--pine); margin-block-end: var(--s-4);
+}
+.admin-group-head::after { content: ""; flex: 1; block-size: var(--bw); background: var(--mint); border-radius: var(--r-pill); }
+
+.admin-rows { list-style: none; display: flex; flex-direction: column; gap: var(--s-3); }
+.admin-row {
+  display: flex; align-items: center; gap: var(--s-5); flex-wrap: wrap;
+  background: var(--white);
+  border: var(--bw-hair) solid var(--tint-line);
+  border-radius: var(--r-md);
+  padding: var(--s-4) var(--s-5);
+}
+.admin-row.is-out { opacity: .72; }
+.admin-row-main { flex: 1 1 14rem; min-inline-size: 0; }
+.admin-row-main h3 { font-size: 1rem; color: var(--pine); }
+.admin-row-price { font-family: var(--f-ar); font-weight: 700; font-size: .82rem; color: var(--green); }
+.admin-row-price code { font-family: var(--f-word); font-size: .72rem; color: var(--soft); }
+.admin-row-desc { font-size: .78rem; color: var(--soft); }
+.admin-row-badges { display: flex; gap: var(--s-2); flex-wrap: wrap; }
+.admin-row-tools { display: flex; gap: var(--s-2); align-items: center; flex-wrap: wrap; }
+
+.admin-badge {
+  font-family: var(--f-ar); font-weight: 800; font-size: .65rem;
+  padding: var(--s-1) var(--s-4); border-radius: var(--r-pill);
+}
+.admin-badge.is-out { background: var(--pine); color: var(--mint); }
+.admin-badge.is-offer { background: var(--green); color: var(--white); }
+.admin-badge.is-fav { background: var(--gold); color: var(--pine); }
+
+/* --- forms --- */
+.admin-item-form { max-inline-size: 100%; }
+.admin-field textarea,
+.admin-field select {
+  font-family: var(--f-body); font-size: 1rem; color: var(--ink);
+  background: var(--white); border: var(--bw) solid var(--mint);
+  border-radius: var(--r-md); padding-block: var(--s-4); padding-inline: var(--s-5);
+  transition: var(--t-fast);
+}
+.admin-field textarea:focus, .admin-field select:focus, .admin-field input:focus { border-color: var(--green); }
+.admin-field input[type="search"] {
+  font-family: var(--f-body); font-size: 1rem; color: var(--ink);
+  background: var(--white); border: var(--bw) solid var(--mint);
+  border-radius: var(--r-md); padding-block: var(--s-4); padding-inline: var(--s-5);
+}
+
+.admin-fieldset {
+  border: var(--bw-hair) solid var(--tint-line);
+  border-radius: var(--r-md);
+  padding: var(--s-6);
+  display: flex; flex-direction: column; gap: var(--s-5);
+}
+.admin-fieldset legend { font-family: var(--f-ar); font-weight: 800; font-size: .9rem; color: var(--pine); padding-inline: var(--s-3); }
+
+.admin-toggle-row { display: flex; gap: var(--s-3); flex-wrap: wrap; }
+.admin-pill {
+  cursor: pointer; font-family: var(--f-ar); font-weight: 700; font-size: .85rem;
+  padding: var(--s-3) var(--s-6); border-radius: var(--r-pill);
+  border: var(--bw-hair) solid var(--tint-line); background: var(--white); color: var(--soft);
+  transition: var(--t-fast);
+}
+.admin-pill:hover { border-color: var(--green); color: var(--green); }
+.admin-pill.is-active { background: var(--green); color: var(--white); border-color: var(--green); }
+
+.admin-check { display: flex; align-items: center; gap: var(--s-3); font-family: var(--f-ar); font-weight: 700; font-size: .9rem; color: var(--pine); cursor: pointer; }
+.admin-check input { inline-size: 1.05rem; block-size: 1.05rem; accent-color: var(--green); }
+
+.admin-variants { display: flex; flex-direction: column; gap: var(--s-4); align-items: start; }
+.admin-variant-row { display: flex; gap: var(--s-3); align-items: end; flex-wrap: wrap; inline-size: 100%; }
+.admin-variant-row .admin-field { flex: 1 1 8rem; }
+.admin-field-price { flex: 0 1 8rem !important; }
+
+.admin-image-placeholder { display: flex; flex-direction: column; gap: var(--s-3); align-items: start; }
+.admin-form-actions { display: flex; gap: var(--s-3); flex-wrap: wrap; }
+
+.admin-inline-form { display: flex; gap: var(--s-3); align-items: end; flex-wrap: wrap; }
+.admin-create-category { margin-block-end: var(--s-7); padding: var(--s-6); background: var(--white); border: var(--bw-hair) solid var(--tint-line); border-radius: var(--r-md); }
+
+.admin-danger-zone {
+  margin-block-start: var(--s-9);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-5); flex-wrap: wrap;
+  border: var(--bw-hair) solid var(--danger-line); border-radius: var(--r-md); padding: var(--s-6);
+}
+.admin-danger-zone h2 { font-size: 1rem; color: var(--danger); }
+
+@media (max-width: 760px) {
+  .admin-row { align-items: start; }
+  .admin-row-tools { inline-size: 100%; }
+}
+
+.admin-nav { display: flex; gap: var(--s-6); flex-wrap: wrap; }
+.admin-nav a {
+  font-family: var(--f-ar); font-weight: 700; font-size: .9rem; color: var(--pine);
+  padding-block: var(--s-2); border-block-end: var(--bw) solid transparent; transition: var(--t-fast);
+}
+.admin-nav a:hover { border-block-end-color: var(--green); color: var(--green); }

@@ -91,9 +91,46 @@ const loadMenu = unstable_cache(queryMenu, ["cerablus-public-menu"], {
   revalidate: MENU_REVALIDATE_SECONDS,
 });
 
-/** The public menu, from cache. Server components only. */
-export function getMenu(): Promise<Menu> {
-  return loadMenu();
+/** What the public pages render when the database cannot be reached at all. */
+const EMPTY_MENU: Menu = { currency: "ل.س", categories: [], items: [] };
+
+/**
+ * The public menu, from cache. Server components only.
+ *
+ * MENU BUILD RESILIENCE
+ * ---------------------
+ * `next build` prerenders `/` and `/menu`, which means it runs this query. In a
+ * build environment with no DATABASE_URL — or with the database asleep or
+ * unreachable — that used to abort the whole build.
+ *
+ * The fix is deliberately narrow, and does NOT weaken the caching model:
+ *
+ *   - the try/catch sits OUTSIDE `unstable_cache`. A failed query rejects, and
+ *     a rejected promise is never written to the Data Cache, so the empty menu
+ *     is not cached and the very next call retries the database. The tag, the
+ *     TTL and revalidateMenu() are all untouched.
+ *   - a normal request against a working database never enters the catch and
+ *     behaves exactly as before.
+ *   - a build with no database still emits both pages, from an empty menu.
+ *
+ * The cost is one honest window: if the build itself could not reach the
+ * database, the prerendered HTML is an empty menu, and the first visitor after
+ * deploy sees that stale copy while ISR regenerates in the background — the
+ * page is correct from the next request on. Deploys that do have DATABASE_URL
+ * (the normal Vercel case) never hit this at all.
+ */
+export async function getMenu(): Promise<Menu> {
+  try {
+    return await loadMenu();
+  } catch (error) {
+    // The message only; a connection error can carry the URL — and therefore
+    // the password — in its payload.
+    console.error(
+      "[cerablus] could not read the menu from the database; serving an empty menu.",
+      error instanceof Error ? error.message : error,
+    );
+    return EMPTY_MENU;
+  }
 }
 
 /**

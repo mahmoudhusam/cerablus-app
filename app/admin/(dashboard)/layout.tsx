@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { logoutAction } from "@/app/admin/actions";
 import { CerablusMark } from "@/components/brand/CerablusMark";
 import { requireAdmin } from "@/lib/admin-auth";
@@ -37,6 +39,14 @@ export default async function DashboardLayout({
             <span className="name">Cerablus</span>
             <span className="admin-tag">لوحة التحكم</span>
           </div>
+
+          <nav className="admin-nav" aria-label="أقسام لوحة التحكم">
+            <Link href="/admin">الأصناف</Link>
+            <Link href="/admin/categories">الأقسام</Link>
+            <Link href="/menu" target="_blank" rel="noopener noreferrer">
+              المنيو العام ↗
+            </Link>
+          </nav>
 
           <div className="admin-bar-actions">
             <span className="admin-who">{admin.username}</span>

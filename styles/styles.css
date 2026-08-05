@@ -96,6 +96,14 @@
   /* --- unavailable items --- */
   --dim:.45;
 
+  /* --- destructive actions (admin only) ---
+     Design C has no red; deleting is the one place the admin needs to read as
+     danger rather than as brand. Kept as tokens here so admin.css stays free of
+     raw hex like everything else. */
+  --danger:#8a1c1c;
+  --danger-line:#d8b4b4;
+  --danger-tint:#fbeaea;
+
   /* --- empty state --- */
   --body-min:60vh;      /* keeps the footer put when results shrink */
   --empty-mark:64px;
