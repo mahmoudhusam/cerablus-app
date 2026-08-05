@@ -435,3 +435,36 @@
   padding-block: var(--s-2); border-block-end: var(--bw) solid transparent; transition: var(--t-fast);
 }
 .admin-nav a:hover { border-block-end-color: var(--green); color: var(--green); }
+
+/* --- per-item image upload (Step 6) --- */
+.admin-image-field { display: flex; gap: var(--s-6); align-items: start; flex-wrap: wrap; }
+.admin-image-controls { flex: 1 1 16rem; display: flex; flex-direction: column; gap: var(--s-4); }
+
+/* Same 16:10 as the public card, so the preview is what the customer will see. */
+.admin-image-preview {
+  flex: 0 0 auto;
+  inline-size: 13rem;
+  aspect-ratio: 16 / 10;
+  background: var(--mint);
+  border: var(--bw-hair) solid var(--tint-line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+.admin-image-preview img { inline-size: 100%; block-size: 100%; object-fit: cover; }
+
+/* The branded placeholder, same mark and tint the public card uses. */
+.admin-image-empty {
+  inline-size: 44%;
+  block-size: 44%;
+  background: var(--green);
+  opacity: var(--ph-opacity);
+  -webkit-mask-image: var(--mark-mask); mask-image: var(--mark-mask);
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: center; mask-position: center;
+  -webkit-mask-size: contain; mask-size: contain;
+}
+
+.admin-image-placeholder .admin-image-empty { inline-size: 3rem; block-size: 3rem; }
+.admin-image-controls input[type="file"] { font-family: var(--f-body); font-size: .85rem; color: var(--ink); }

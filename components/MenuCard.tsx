@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { IMAGE_SIZES, menuImageSrcSet, menuImageUrl } from "@/lib/cloudinary-url";
 import {
   badgeFor,
   formatPrice,
@@ -33,14 +34,20 @@ function ItemImage({ src, alt }: { src: string; alt: string }) {
     if (img && img.complete && img.naturalWidth === 0) setBroken(true);
   }, [src]);
 
-  /* A plain <img>, not next/image: item photos are arbitrary Cloudinary URLs
-     added by the owner at runtime (Step 6), and the placeholder fallback above
-     depends on a real element's error behaviour. */
+  /* A plain <img>, not next/image: the photos are Cloudinary URLs the owner
+     uploads at runtime, Cloudinary already does the resizing and format
+     negotiation (see lib/cloudinary-url.ts), and the placeholder fallback above
+     depends on a real element's error behaviour.
+
+     src/srcSet are the TRANSFORMED forms — the stored URL is the untouched
+     original, and none of it ships to a customer at full size. */
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
       ref={ref}
-      src={src}
+      src={menuImageUrl(src, "card")}
+      srcSet={menuImageSrcSet(src, "card") || undefined}
+      sizes={IMAGE_SIZES.card}
       alt={alt}
       className={broken ? "is-missing" : undefined}
       loading="lazy"

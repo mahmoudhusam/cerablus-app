@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useId, useState } from "react";
 
 import { SubmitButton } from "@/components/admin/ConfirmSubmit";
+import { ImageField } from "@/app/admin/(dashboard)/items/ImageField";
 import type { ItemFormState } from "@/app/admin/(dashboard)/items/actions";
 import type { AdminCategory, AdminItem } from "@/lib/admin-data";
 
@@ -282,17 +283,24 @@ export function ItemForm({
         ) : null}
       </fieldset>
 
-      {/* ---- image: Step 6 ---- */}
+      {/* ---- image ----
+           Upload needs an item to attach to, so a brand-new item is saved
+           first and photographed after. Everything here lives outside the
+           form's submit: the photo is saved the moment it uploads, not when
+           the editor is saved. */}
       <fieldset className="admin-fieldset" aria-describedby={`${uid}-image-note`}>
         <legend>الصورة</legend>
-        <div className="admin-image-placeholder">
-          <button type="button" className="admin-btn admin-btn-ghost" disabled>
-            رفع صورة
-          </button>
-          <p className="admin-hint" id={`${uid}-image-note`}>
-            رفع الصور بيجي بالخطوة الجاي. لهلق كل صنف بيعرض شعار Cerablus كصورة مبدئية.
-          </p>
-        </div>
+        {item ? (
+          <ImageField itemId={item.id} imageUrl={item.imageUrl} itemName={item.name} />
+        ) : (
+          <div className="admin-image-placeholder">
+            <span className="admin-image-empty" aria-hidden="true" />
+            <p className="admin-hint" id={`${uid}-image-note`}>
+              احفظ الصنف أول، وبعدها بتقدر ترفع صورته من صفحة التعديل. لحد ما ترفع صورة،
+              البطاقة بتعرض شعار Cerablus.
+            </p>
+          </div>
+        )}
       </fieldset>
 
       <div className="admin-form-actions">

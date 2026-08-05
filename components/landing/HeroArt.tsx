@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { CerablusLogotype } from "@/components/brand/CerablusLogotype";
+import { IMAGE_SIZES, menuImageSrcSet, menuImageUrl } from "@/lib/cloudinary-url";
 import type { MenuItem } from "@/lib/menu-types";
 
 /* --------------------------------------------------------------------------
@@ -135,7 +136,17 @@ export function HeroArt({ eligible }: { eligible: MenuItem[] }) {
             key={item.id}
             className={i === active ? "hero-slide is-active" : "hero-slide"}
             // Load only the current and the next image; the rest stay unloaded.
-            src={i === active || i === (active + 1) % slides.length ? item.image : undefined}
+            src={
+              i === active || i === (active + 1) % slides.length
+                ? menuImageUrl(item.image, "hero")
+                : undefined
+            }
+            srcSet={
+              i === active || i === (active + 1) % slides.length
+                ? menuImageSrcSet(item.image, "hero") || undefined
+                : undefined
+            }
+            sizes={IMAGE_SIZES.hero}
             alt={item.name}
             decoding="async"
             onError={() =>

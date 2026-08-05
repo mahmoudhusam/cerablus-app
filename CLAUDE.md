@@ -59,8 +59,8 @@ for one.
 - [x] **Step 3** — Public menu + landing: port design C to read from the DB. Reuse the
       cart, search, offers, and WhatsApp order flow from the old project.
 - [x] **Step 4** — Admin auth: single-owner login (NextAuth), protect `/admin`.
-- [ ] **Step 5** — Admin CRUD: manage items and categories.
-- [ ] **Step 6** — Cloudinary image upload per item.
+- [x] **Step 5** — Admin CRUD: manage items and categories.
+- [x] **Step 6** — Cloudinary image upload per item.
 - [ ] **Step 7** — Caching / revalidation, deploy to Vercel, custom domain.
 
 `/reference/menu.js` (133 items, ل.س) and `/styles/styles.css` were copied from the old

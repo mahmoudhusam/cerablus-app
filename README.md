@@ -6,9 +6,9 @@ Next.js (App Router) + TypeScript + Prisma + Neon Postgres.
 - **Admin** (`/admin`) — single-owner login to manage the menu and item photos.
 
 See [CLAUDE.md](./CLAUDE.md) for the full spec and the step-by-step build order.
-**Current status: Step 4 complete** — the public site is live off the database
-(`/` and `/menu`), and `/admin` is behind a single-owner login. The admin is a
-locked shell only: no editing or image uploads yet (Steps 5–6).
+**Current status: Step 6 complete** — the public site is live off the database
+(`/` and `/menu`), `/admin` is behind a single-owner login, and the owner can manage
+items and categories and upload a photo per item. Remaining: Step 7 (deploy + domain).
 
 ## Layout
 
@@ -135,9 +135,9 @@ Next.js (App Router) + TypeScript + Prisma + Neon Postgres.
 - **Admin** (`/admin`) — single-owner login to manage the menu and item photos.
 
 See [CLAUDE.md](./CLAUDE.md) for the full spec and the step-by-step build order.
-**Current status: Step 4 complete** — the public site is live off the database
-(`/` and `/menu`), and `/admin` is behind a single-owner login. The admin is a
-locked shell only: no editing or image uploads yet (Steps 5–6).
+**Current status: Step 6 complete** — the public site is live off the database
+(`/` and `/menu`), `/admin` is behind a single-owner login, and the owner can manage
+items and categories and upload a photo per item. Remaining: Step 7 (deploy + domain).
 
 ## Layout
 
@@ -252,9 +252,9 @@ Next.js (App Router) + TypeScript + Prisma + Neon Postgres.
 - **Admin** (`/admin`) — single-owner login to manage the menu and item photos.
 
 See [CLAUDE.md](./CLAUDE.md) for the full spec and the step-by-step build order.
-**Current status: Step 4 complete** — the public site is live off the database
-(`/` and `/menu`), and `/admin` is behind a single-owner login. The admin is a
-locked shell only: no editing or image uploads yet (Steps 5–6).
+**Current status: Step 6 complete** — the public site is live off the database
+(`/` and `/menu`), `/admin` is behind a single-owner login, and the owner can manage
+items and categories and upload a photo per item. Remaining: Step 7 (deploy + domain).
 
 ## Layout
 
@@ -370,9 +370,9 @@ Next.js (App Router) + TypeScript + Prisma + Neon Postgres.
 - **Admin** (`/admin`) — single-owner login to manage the menu and item photos.
 
 See [CLAUDE.md](./CLAUDE.md) for the full spec and the step-by-step build order.
-**Current status: Step 4 complete** — the public site is live off the database
-(`/` and `/menu`), and `/admin` is behind a single-owner login. The admin is a
-locked shell only: no editing or image uploads yet (Steps 5–6).
+**Current status: Step 6 complete** — the public site is live off the database
+(`/` and `/menu`), `/admin` is behind a single-owner login, and the owner can manage
+items and categories and upload a photo per item. Remaining: Step 7 (deploy + domain).
 
 ## Layout
 
@@ -515,6 +515,27 @@ env var degrades to "correct" rather than to a dead link — but set it anyway, 
 > **`/` and `/menu` are prerendered**, so the number is baked into their HTML at build
 > time. Changing the env var only reaches the public pages on the next build, or once
 > ISR regenerates them (any admin edit does this immediately via `revalidateMenu()`).
+
+### Item photos (Cloudinary)
+
+Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET` in
+`.env.local` **and** in Vercel (Production + Preview). All three are server-only; the
+secret never reaches the browser.
+
+Photos upload **straight from the admin's browser to Cloudinary** using a short-lived
+signature minted by `POST /api/admin/cloudinary-signature` (guarded by
+`requireAdminApi()`). The bytes never pass through our own server, which matters
+because Vercel caps a function's request body around 4.5 MB and phone photos are
+routinely larger. Cloudinary's signed response is then verified server-side before the
+URL is saved, and the URL is rebuilt from our own cloud name — the client never
+supplies one. Everything lands in the folder `cerablus/menu`.
+
+Replacing or removing a photo deletes the old asset, so the folder does not accumulate
+orphans.
+
+Delivery transformations live in `lib/cloudinary-url.ts`
+(`f_auto,q_auto,c_fill,g_auto` plus a per-surface aspect ratio and width). The stored
+URL keeps no transformation, so re-tuning delivery is a code change, not a re-upload.
 
 ### Hours, address, tagline
 
