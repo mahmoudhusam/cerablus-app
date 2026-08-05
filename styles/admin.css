@@ -16,7 +16,10 @@
   color: var(--ink);
 }
 
-/* --- shared brand lockup (login card + top bar) --- */
+/* --- shared brand lockup (login card + top bar) ---
+   Same treatment as the public header: a WHITE mark on the green chip. Both
+   admin surfaces are white, so the chip is what keeps the glyph visible — it is
+   load-bearing, not decoration. */
 .admin-brand {
   display: flex;
   align-items: center;

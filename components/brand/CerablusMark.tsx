@@ -1,20 +1,32 @@
-// The Cerablus cup mark. Path data is copied verbatim from
-// public/cerablus-mark.svg — regenerate both together if the logo ever changes.
-// Inherits its colour from the parent (fill="currentColor"), which is how the
-// same glyph reads white in the header tile and gold in the footer.
+// THE Cerablus cup mark — the only place this artwork exists in the app's markup.
+//
+// Generated from public/cerablus-mark.svg, which is the single source of truth:
+// that same file is what styles.css points its --mark-mask at. If the logo ever
+// changes, replace the file and re-run the generator noted in the commit that
+// added this component; never hand-edit the path data below.
+//
+// Inlined rather than loaded through <Image>/<img> because the artwork is
+// fill="currentColor": inlining is what lets a parent set `color` and have the
+// mark come out white on a green chip, white on the dark footer, or any other
+// brand colour, from ONE component.
+//
+// aria-hidden on purpose: every place this is used sits directly beside the live
+// text "Cerablus", so labelling the glyph too would announce the brand twice.
+// (The standalone file keeps its own role="img"/aria-label for use outside React.)
 
 export function CerablusMark({ className }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 158.000000 229.000000"
+      viewBox="0 0 162.000000 233.000000"
       fill="currentColor"
       className={className}
       aria-hidden="true"
+      focusable="false"
     >
-      <g transform="translate(0.000000,229.000000) scale(0.100000,-0.100000)"
+      <g transform="translate(0.000000,233.000000) scale(0.100000,-0.100000)"
       fill="currentColor" stroke="none">
-      <path d="M992 2157 c-13 -7 -33 -28 -45 -47 -12 -19 -30 -45 -39 -59 -20 -30
+      <path d="M1012 2177 c-13 -7 -33 -28 -45 -47 -12 -19 -30 -45 -39 -59 -20 -30
       -38 -68 -38 -82 0 -5 -7 -9 -15 -9 -10 0 -15 -10 -15 -30 0 -17 -9 -48 -20
       -70 -18 -35 -23 -38 -52 -34 -57 7 -412 34 -457 34 -34 0 -49 -6 -72 -29 -25
       -26 -29 -37 -29 -85 0 -51 -2 -56 -25 -62 -48 -12 -65 -48 -65 -136 0 -92 9
@@ -33,15 +45,15 @@ export function CerablusMark({ className }: { className?: string }) {
       15 18 16 35 8 11 -6 24 -11 30 -11 20 0 11 20 -14 32 -28 12 -33 36 -10 44 8
       3 23 21 34 40 15 25 27 34 46 34 14 0 101 -41 193 -91z m212 -142 c0 -13 -9
       -32 -20 -42 -18 -17 -20 -17 -26 -1 -4 10 -2 28 4 42 15 31 42 32 42 1z"/>
-      <path d="M675 1299 c-126 -21 -235 -78 -331 -173 -113 -113 -164 -241 -164
+      <path d="M695 1319 c-126 -21 -235 -78 -331 -173 -113 -113 -164 -241 -164
       -411 0 -169 50 -295 164 -410 170 -172 440 -230 681 -147 86 30 203 104 231
       146 14 23 12 26 -51 86 -103 99 -100 98 -143 58 -78 -73 -165 -103 -276 -96
       -211 14 -346 172 -334 391 6 107 38 177 114 246 130 119 336 122 485 7 l57
       -44 83 79 84 79 -55 51 c-128 118 -342 172 -545 138z"/>
-      <path d="M739 985 c-90 -33 -138 -86 -109 -120 17 -20 32 -19 81 7 116 60 234
-      -8 232 -133 -2 -159 -212 -217 -304 -83 -32 47 -57 55 -83 28 -20 -20 -20 -22
-      4 -86 44 -117 139 -182 265 -182 124 0 209 56 263 173 21 46 24 63 20 135 -5
-      93 -21 131 -81 194 -70 72 -195 102 -288 67z"/>
+      <path d="M759 1005 c-90 -33 -138 -86 -109 -120 17 -20 32 -19 81 7 116 60
+      234 -8 232 -133 -2 -159 -212 -217 -304 -83 -32 47 -57 55 -83 28 -20 -20 -20
+      -22 4 -86 44 -117 139 -182 265 -182 124 0 209 56 263 173 21 46 24 63 20 135
+      -5 93 -21 131 -81 194 -70 72 -195 102 -288 67z"/>
       </g>
     </svg>
   );
