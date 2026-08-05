@@ -1,19 +1,24 @@
 import { CerablusMark } from "@/components/brand/CerablusMark";
-
-/* Hours and address band. Kept here rather than in lib/site.ts so this
-   component stays free of any server-only module — it renders inside the menu
-   page's client tree as well as the landing page's server tree. */
-const HOURS_LINE = "يوميًا ٩ص–١١م · العنوان يُحدّد لاحقًا";
+import { ADDRESS, HOURS, MAPS_URL, formatPhone } from "@/lib/business";
+import { plainOrderHref } from "@/lib/menu-order";
 
 /**
- * The dark green footer band. `id="hours"` on the landing page only — it is the
- * target of the hero's أوقات الدوام button, and an id must not be duplicated
- * across the two pages' markup.
+ * The dark green footer band — also the site's contact section.
  *
- * `waHref` is a bare chat link (no pre-filled order): the cart's own button in
- * the drawer is the one that carries an order.
+ * `id="hours"` on the landing page only: it is the target of the hero's
+ * أوقات الدوام button, and an id must not be duplicated across the two pages.
+ *
+ * Takes the PHONE rather than a finished href, and derives both the wa.me links
+ * and the printed number from it. That is what makes the number a customer
+ * reads and the number their phone actually dials the same value by
+ * construction — there is no second place to update.
+ *
+ * The links here are bare chat links (no pre-filled order): the cart's own
+ * button in the drawer is the one that carries an order.
  */
-export function SiteFooter({ waHref, id }: { waHref: string; id?: string }) {
+export function SiteFooter({ phone, id }: { phone: string; id?: string }) {
+  const chatHref = plainOrderHref(phone);
+
   return (
     <footer id={id}>
       <div className="wrap">
@@ -23,8 +28,24 @@ export function SiteFooter({ waHref, id }: { waHref: string; id?: string }) {
           </span>
           Cerablus<b>.</b>
         </div>
-        <div className="meta">{HOURS_LINE}</div>
-        <a className="wa" href={waHref} target="_blank" rel="noopener noreferrer">
+
+        <div className="meta">
+          <p>{HOURS}</p>
+          <p>
+            <a href={MAPS_URL} target="_blank" rel="noopener noreferrer">
+              {ADDRESS}
+            </a>
+          </p>
+          {/* dir="ltr" so the + and the digit groups read in the right order
+              inside an RTL paragraph; the label beside it stays Arabic. */}
+          <p>
+            <a className="footer-phone" href={chatHref} target="_blank" rel="noopener noreferrer">
+              <span dir="ltr">{formatPhone(phone)}</span>
+            </a>
+          </p>
+        </div>
+
+        <a className="wa" href={chatHref} target="_blank" rel="noopener noreferrer">
           اطلب الآن عبر واتساب
         </a>
       </div>

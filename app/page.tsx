@@ -6,6 +6,7 @@ import { CerablusLogotype } from "@/components/brand/CerablusLogotype";
 import { HeroArt } from "@/components/landing/HeroArt";
 import { PreviewSection } from "@/components/landing/PreviewSection";
 import { getMenu } from "@/lib/menu-data";
+import { TAGLINE } from "@/lib/business";
 import { heroEligibleItems } from "@/lib/menu-format";
 import { plainOrderHref } from "@/lib/menu-order";
 import { SITE_URL, getWhatsAppPhone } from "@/lib/site";
@@ -45,7 +46,7 @@ export default async function Home() {
 
       <section className="wrap hero">
         <div className="col-text">
-          <span className="kick">قهوة مختصّة · دمشق</span>
+          <span className="kick">{TAGLINE}</span>
           {/* headline + logo lockup read as one tight unit, sharing the right
               edge in RTL */}
           <div className="headline">
@@ -92,7 +93,7 @@ export default async function Home() {
       <PreviewSection menu={menu} />
 
       {/* id="hours": the target of the hero's أوقات الدوام button. */}
-      <SiteFooter id="hours" waHref={chatHref} />
+      <SiteFooter id="hours" phone={phone} />
     </>
   );
 }

@@ -33,11 +33,11 @@ const sora = Sora({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Cerablus Coffee — قهوة مختصّة في دمشق، سوريا",
+    default: "Cerablus Coffee — قهوة مختصة في حلب، سوريا",
     template: "%s — Cerablus Coffee",
   },
   description:
-    "قهوة مختصّة وحلويات طازة ومأكولات خفيفة في دمشق، سوريا. تصفّح المنيو وابعت طلبك مباشرة عبر واتساب.",
+    "قهوة مختصة وحلويات طازة ومأكولات خفيفة في حلب، سوريا. مفتوح من الـ 11 صباحاً حتى 1 ليلاً. تصفّح المنيو وابعت طلبك مباشرة عبر واتساب.",
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Cerablus Coffee",
-    locale: "ar_AR",
+    locale: "ar_SY",
     images: [{ url: "/og-cover.png", width: 1200, height: 630, alt: "Cerablus Coffee" }],
   },
   twitter: { card: "summary_large_image" },

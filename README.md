@@ -500,12 +500,27 @@ costs the same time as a wrong password, so neither can be probed.
 
 ### The WhatsApp number
 
-Set `CERABLUS_WHATSAPP_PHONE` to the café's number in international format, digits
-only (e.g. `963xxxxxxxxx`). It is read on the server in `lib/site.ts` and passed into
-the client tree as a prop — deliberately not a `NEXT_PUBLIC_*` variable.
+The café's number is **963939426710** (displayed as +963 939 426 710).
 
-**Until it is set, every wa.me link uses the placeholder `970590000000`** carried over
-from the old build, and `npm run dev` warns about it on each render.
+Set `CERABLUS_WHATSAPP_PHONE=963939426710` — digits only, no `+`, no spaces. It is
+read on the server in `lib/site.ts` and passed into the client tree as a prop —
+deliberately not a `NEXT_PUBLIC_*` variable. The human-readable form shown in the
+footer is formatted from that same value by `formatPhone()` in `lib/business.ts`, so
+the number a customer reads and the number their phone dials cannot drift apart.
+
+`lib/site.ts` falls back to the same number when the variable is unset, so a forgotten
+env var degrades to "correct" rather than to a dead link — but set it anyway, in
+`.env.local` **and** in Vercel (Production + Preview).
+
+> **`/` and `/menu` are prerendered**, so the number is baked into their HTML at build
+> time. Changing the env var only reaches the public pages on the next build, or once
+> ISR regenerates them (any admin edit does this immediately via `revalidateMenu()`).
+
+### Hours, address, tagline
+
+All of the café's public details live in one pure module, `lib/business.ts` —
+tagline, city, opening hours (`11:00–01:00`, which crosses midnight), address and the
+Google Maps search link. Change them there and every page follows.
 
 ## Commands
 

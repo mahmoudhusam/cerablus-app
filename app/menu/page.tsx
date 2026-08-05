@@ -17,12 +17,12 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "المنيو",
   description:
-    "منيو Cerablus Coffee: مشروبات ساخنة وباردة، حلويات ومأكولات خفيفة. ابحث عن صنفك، أضفه للسلة، وابعت طلبك عبر واتساب.",
+    "منيو Cerablus Coffee في حلب، سوريا: مشروبات ساخنة وباردة، حلويات ومأكولات خفيفة. ابحث عن صنفك، أضفه للسلة، وابعت طلبك عبر واتساب.",
   alternates: { canonical: `${SITE_URL}/menu` },
   openGraph: {
     title: "المنيو — Cerablus Coffee",
     description:
-      "منيو Cerablus Coffee: مشروبات ساخنة وباردة، حلويات ومأكولات خفيفة. اختَر أصنافك وابعت طلبك عبر واتساب.",
+      "منيو Cerablus Coffee في حلب، سوريا: مشروبات ساخنة وباردة، حلويات ومأكولات خفيفة. اختَر أصنافك وابعت طلبك عبر واتساب.",
     url: `${SITE_URL}/menu`,
   },
 };

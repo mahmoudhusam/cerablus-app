@@ -8,6 +8,7 @@ import { CartIcon } from "@/components/icons";
 import { CartDrawer } from "@/components/menu/CartDrawer";
 import { MenuList } from "@/components/menu/MenuList";
 import { MenuToolbar } from "@/components/menu/MenuToolbar";
+import { CITY } from "@/lib/business";
 import { FLAG_CHIPS, isFlagChip, normalize, searchKeyFor } from "@/lib/menu-format";
 import {
   type Cart,
@@ -133,7 +134,7 @@ export function MenuBrowser({ menu, phone }: { menu: Menu; phone: string }) {
       </SiteHeader>
 
       <section className="wrap menu-intro">
-        <span className="kick">قائمة اليوم · دمشق</span>
+        <span className="kick">قائمة اليوم · {CITY}</span>
         <h1>المنيو</h1>
         <p>اختَر أصنافك وأضفها للسلة، وابعت طلبك مباشرة عبر واتساب.</p>
       </section>
@@ -162,7 +163,7 @@ export function MenuBrowser({ menu, phone }: { menu: Menu; phone: string }) {
         {visible.length ? `${visible.length} صنف` : "ما في نتائج"}
       </p>
 
-      <SiteFooter waHref={plainOrderHref(phone)} />
+      <SiteFooter phone={phone} />
 
       <CartDrawer
         cart={cart}

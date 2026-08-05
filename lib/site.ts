@@ -12,11 +12,19 @@
  */
 
 /**
- * Stand-in until the café's real number is configured, carried over from the
- * old static build so the order flow is testable before launch. Digits only,
- * no leading +.
+ * The café's real WhatsApp number, used when CERABLUS_WHATSAPP_PHONE is not
+ * set — a local checkout, or a preview deploy whose env vars were forgotten.
+ *
+ * This is the ONLY literal number in the codebase, and it is a fallback, not
+ * the source: the environment variable wins whenever it is present.
+ *
+ * Digits only, no leading +. The human-readable form is derived from this same
+ * value by formatPhone() in lib/business.ts, so the two cannot disagree.
+ *
+ * It replaces a 970… placeholder carried over from the previous build — the
+ * wrong country's dialling code, which would have sent every order nowhere.
  */
-const PLACEHOLDER_PHONE = "970590000000";
+const FALLBACK_PHONE = "963939426710";
 
 /**
  * The site's own origin, used to make canonical and Open Graph URLs absolute —
@@ -40,8 +48,8 @@ export function getWhatsAppPhone(): string {
 
   if (process.env.NODE_ENV !== "production") {
     console.warn(
-      "[cerablus] CERABLUS_WHATSAPP_PHONE is not set — every wa.me link uses the placeholder number.",
+      "[cerablus] CERABLUS_WHATSAPP_PHONE is not set — falling back to the number hard-coded in lib/site.ts.",
     );
   }
-  return PLACEHOLDER_PHONE;
+  return FALLBACK_PHONE;
 }

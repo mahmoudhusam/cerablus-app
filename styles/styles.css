@@ -272,7 +272,15 @@ footer .word b{color:var(--gold)}
 /* White, like every other placement of the mark. The gold is kept for the
    trailing full stop in the wordmark beside it, not for the glyph. */
 footer .word .cmark{height:var(--mark-glyph-lg);color:var(--white)}
-footer .meta{color:var(--tint-mint-soft);font-size:.9rem;margin-bottom:1.2rem}
+/* contact block: hours, address, phone. Stacked lines rather than one
+   run-on, so each fact is scannable; the address and phone are links. */
+footer .meta{color:var(--tint-mint-soft);font-size:.9rem;margin-bottom:1.2rem;
+  display:flex;flex-direction:column;gap:var(--s-2)}
+footer .meta a{color:var(--mint);border-bottom:var(--hair) solid var(--tint-mint-ghost);
+  transition:var(--t-fast)}
+footer .meta a:hover{color:var(--gold);border-bottom-color:var(--gold)}
+/* the number reads left-to-right inside the RTL band */
+footer .footer-phone{font-family:var(--f-word);font-weight:700;letter-spacing:normal}
 footer .wa{display:inline-flex;align-items:center;gap:var(--s-3);background:var(--gold);color:var(--pine);padding:.8rem 1.7rem;border-radius:var(--r-md);font-family:var(--f-ar);font-weight:800}
 
 /* NOTE: media query conditions cannot read CSS custom properties, so this
