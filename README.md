@@ -114,6 +114,11 @@ so it is safe to re-run and cannot leave a half-seeded database.
 > once the owner has uploaded photos or edited items through the admin (Steps 5–6),
 > re-running the seed will discard that work.
 
+Because of that, the seed **refuses to run against a database that already holds a
+menu** — it counts first, explains what it would delete, and exits without touching
+anything. An empty database seeds normally. To re-seed deliberately and discard the
+live menu, say so explicitly: `CERABLUS_SEED_CONFIRM=wipe npm run seed`.
+
 ### Admin login (Step 4)
 
 One owner. There is no user table, no sign-up and no password reset — four
@@ -243,6 +248,11 @@ so it is safe to re-run and cannot leave a half-seeded database.
 > once the owner has uploaded photos or edited items through the admin (Steps 5–6),
 > re-running the seed will discard that work.
 
+Because of that, the seed **refuses to run against a database that already holds a
+menu** — it counts first, explains what it would delete, and exits without touching
+anything. An empty database seeds normally. To re-seed deliberately and discard the
+live menu, say so explicitly: `CERABLUS_SEED_CONFIRM=wipe npm run seed`.
+
  in the hash.** Next.js runs every `.env` value through
 > dotenv-expand, which reads `# Cerablus Coffee — web app
 
@@ -359,6 +369,11 @@ so it is safe to re-run and cannot leave a half-seeded database.
 > This is a migration, not a maintenance tool. Rows get fresh ids on every run, so
 > once the owner has uploaded photos or edited items through the admin (Steps 5–6),
 > re-running the seed will discard that work.
+
+Because of that, the seed **refuses to run against a database that already holds a
+menu** — it counts first, explains what it would delete, and exits without touching
+anything. An empty database seeds normally. To re-seed deliberately and discard the
+live menu, say so explicitly: `CERABLUS_SEED_CONFIRM=wipe npm run seed`.
 
  as the start of a variable reference — and a
 > bcrypt hash is `$2b$12$…`. Left alone it is silently truncated into a wrong
@@ -477,6 +492,11 @@ so it is safe to re-run and cannot leave a half-seeded database.
 > This is a migration, not a maintenance tool. Rows get fresh ids on every run, so
 > once the owner has uploaded photos or edited items through the admin (Steps 5–6),
 > re-running the seed will discard that work.
+
+Because of that, the seed **refuses to run against a database that already holds a
+menu** — it counts first, explains what it would delete, and exits without touching
+anything. An empty database seeds normally. To re-seed deliberately and discard the
+live menu, say so explicitly: `CERABLUS_SEED_CONFIRM=wipe npm run seed`.
 
  does.
 > `npm run hash-password` prints the escaped line for `.env.local` and the plain

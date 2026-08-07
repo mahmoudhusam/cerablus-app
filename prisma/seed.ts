@@ -18,6 +18,14 @@
  *   uploaded photos (Step 6) or edited items through the admin, re-running this
  *   seed WILL discard that work. It is a migration, not a maintenance tool.
  *
+ * THE GUARD (see refuseIfPopulated)
+ *   Because of that caveat, the wipe is gated. An EMPTY database seeds freely —
+ *   a fresh seed can destroy nothing. A database that ALREADY HOLDS ROWS is
+ *   refused unless CERABLUS_SEED_CONFIRM=wipe is set, so neither `npm run seed`
+ *   nor `prisma migrate reset` can quietly delete the café's live menu, photos
+ *   and edits. The guard only decides WHETHER the wipe may run; what gets
+ *   inserted, and how, is unchanged.
+ *
  * Run with:  npm run seed        (or `npx prisma db seed`)
  */
 import { readFileSync } from "node:fs";
@@ -124,6 +132,75 @@ function resolvePrice(item: SourceItem, hasVariants: boolean): number | null {
 }
 
 // ---------------------------------------------------------------------------
+// Guard
+// ---------------------------------------------------------------------------
+
+/** The one override that allows this script to wipe a populated database. */
+const SEED_CONFIRM_VAR = "CERABLUS_SEED_CONFIRM";
+const SEED_CONFIRM_VALUE = "wipe";
+
+/**
+ * Raised when the guard refuses. Distinct from a real failure so the top-level
+ * handler can print the explanation on its own, without the misleading
+ * "the database was rolled back" wrapper — nothing was ever attempted.
+ */
+class SeedRefused extends Error {}
+
+/**
+ * Refuse to wipe a database that already holds a menu.
+ *
+ * Counts first and deletes nothing: on the refusing path this function throws
+ * before the transaction is even opened, so the existing data is never touched.
+ *
+ * An empty database is always safe to seed, so it needs no override.
+ */
+async function refuseIfPopulated(prisma: PrismaClient): Promise<void> {
+  const [categories, items] = await Promise.all([
+    prisma.category.count(),
+    prisma.item.count(),
+  ]);
+
+  if (categories === 0 && items === 0) {
+    console.log("Target database is empty — seeding.\n");
+    return;
+  }
+
+  if (process.env[SEED_CONFIRM_VAR] === SEED_CONFIRM_VALUE) {
+    console.warn(
+      `!! ${SEED_CONFIRM_VAR}=${SEED_CONFIRM_VALUE} is set — wiping ${categories} categories ` +
+        `and ${items} items and re-seeding from the reference file.\n`,
+    );
+    return;
+  }
+
+  throw new SeedRefused(
+    [
+      "",
+      "REFUSED — the target database already holds a menu.",
+      "",
+      `  ${categories} categories`,
+      `  ${items} items`,
+      "",
+      "This seed WIPES all three tables and re-inserts with fresh ids. Running it",
+      "here would DELETE that data — including every photo the owner has uploaded",
+      "and every price, availability and ordering edit made through the admin.",
+      "Photos would be orphaned on Cloudinary and could not be reattached.",
+      "",
+      "Nothing has been changed.",
+      "",
+      "The seed is a one-time migration, not a maintenance tool. To edit the menu,",
+      "use the admin at /admin.",
+      "",
+      "If you really do mean to discard the live menu and re-seed from",
+      "reference/menu.js, say so explicitly:",
+      "",
+      `  ${SEED_CONFIRM_VAR}=${SEED_CONFIRM_VALUE} npm run seed`,
+      "",
+    ].join("\n"),
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Seed
 // ---------------------------------------------------------------------------
 
@@ -175,6 +252,10 @@ async function main() {
   let variantCount = 0;
 
   try {
+    // Decide whether the wipe is allowed BEFORE opening the transaction, so a
+    // refusal cannot touch a single row.
+    await refuseIfPopulated(prisma);
+
     await prisma.$transaction(
       async (tx) => {
         // Wipe first — see the strategy note at the top of this file. Deleted
@@ -253,6 +334,13 @@ async function main() {
 }
 
 main().catch((error) => {
+  // A refusal is not a failure: nothing was attempted, so the explanation
+  // stands on its own rather than under a "rolled back" heading.
+  if (error instanceof SeedRefused) {
+    console.error(error.message);
+    process.exit(1);
+  }
+
   console.error("\nSeed failed — the database was rolled back, nothing was changed.");
   console.error(error);
   process.exit(1);

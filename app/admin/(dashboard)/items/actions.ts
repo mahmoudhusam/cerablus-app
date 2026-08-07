@@ -15,6 +15,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/admin-auth";
+import { destroyImageByUrl } from "@/lib/cloudinary";
 import {
   fieldErrors,
   itemDeleteSchema,
@@ -198,14 +199,36 @@ export async function deleteItemAction(formData: FormData): Promise<void> {
   const parsed = itemDeleteSchema.safeParse({ id: formData.get("id") ?? "" });
   if (!parsed.success) redirect(`${ADMIN_ITEMS}?error=${encodeURIComponent("طلب حذف غير صالح")}`);
 
+  // imageUrl is read HERE, before the row is gone: once the item is deleted
+  // there is nothing left to tell us which Cloudinary asset was its photo.
   const item = await prisma.item.findUnique({
     where: { id: parsed.data.id },
-    select: { name: true },
+    select: { name: true, imageUrl: true },
   });
   if (!item) redirect(`${ADMIN_ITEMS}?error=${encodeURIComponent("الصنف محذوف أصلًا")}`);
 
   // Variants go with it: the schema cascades on the item relation.
   await prisma.item.delete({ where: { id: parsed.data.id } });
+
+  /* The photo goes with the item — otherwise it stays on Cloudinary forever,
+     publicly fetchable and billed for.
+
+     AFTER the delete and BEST EFFORT, exactly like the replace path in
+     image-actions.ts. The row is what the owner asked to remove and it has
+     already succeeded; a Cloudinary outage must not turn that into an error or
+     undo it. The worst case here is one orphaned asset — no worse than before
+     this cleanup existed. (destroyImageByUrl swallows its own failures too;
+     this catch is the belt to that braces.) */
+  if (item.imageUrl) {
+    try {
+      await destroyImageByUrl(item.imageUrl);
+    } catch (error) {
+      console.warn(
+        `[cerablus] item "${item.name}" was deleted but its Cloudinary photo could not be removed; it is orphaned but harmless.`,
+        error instanceof Error ? error.message : error,
+      );
+    }
+  }
 
   revalidateMenu();
   revalidatePath(ADMIN_ITEMS);

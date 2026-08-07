@@ -11,6 +11,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/admin-auth";
+import { destroyImageByUrl } from "@/lib/cloudinary";
 import {
   categoryCreateSchema,
   categoryDeleteSchema,
@@ -158,9 +159,21 @@ export async function deleteCategoryAction(formData: FormData): Promise<void> {
     redirect(`${ADMIN_CATEGORIES}?error=${encodeURIComponent("طلب حذف غير صالح")}`);
   }
 
+  /* One query, three jobs: the name for the flash, the live item count for the
+     confirmation check below, and the photos of every item the cascade is about
+     to take with it — collected BEFORE the delete, because afterwards there is
+     no row left to tell us which Cloudinary assets belonged to this section.
+     Only items that actually have a photo are selected. */
   const category = await prisma.category.findUnique({
     where: { id: parsed.data.id },
-    select: { name: true, _count: { select: { items: true } } },
+    select: {
+      name: true,
+      _count: { select: { items: true } },
+      items: {
+        where: { NOT: { imageUrl: "" } },
+        select: { imageUrl: true },
+      },
+    },
   });
   if (!category) {
     redirect(`${ADMIN_CATEGORIES}?error=${encodeURIComponent("القسم محذوف أصلًا")}`);
@@ -177,6 +190,25 @@ export async function deleteCategoryAction(formData: FormData): Promise<void> {
   }
 
   await prisma.category.delete({ where: { id: parsed.data.id } });
+
+  /* The cascade removed the item rows; their photos are not in the database, so
+     they have to be removed from Cloudinary explicitly or they stay there
+     forever, publicly fetchable and billed for.
+
+     AFTER the delete and BEST EFFORT, per asset: the owner's delete has already
+     succeeded, and one failing image must neither abort the rest nor surface as
+     an error on a section that is genuinely gone. Worst case is an orphan or
+     two — no worse than before this cleanup existed. */
+  for (const item of category.items) {
+    try {
+      await destroyImageByUrl(item.imageUrl);
+    } catch (error) {
+      console.warn(
+        `[cerablus] category "${category.name}" was deleted but one of its Cloudinary photos could not be removed; it is orphaned but harmless.`,
+        error instanceof Error ? error.message : error,
+      );
+    }
+  }
 
   revalidateMenu();
   revalidatePath(ADMIN_CATEGORIES);

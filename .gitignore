@@ -43,3 +43,6 @@ next-env.d.ts
 
 # generated Prisma client — rebuilt by `prisma generate` on install and build
 /lib/generated
+
+# audit file
+AUDIT-REPORT.md
