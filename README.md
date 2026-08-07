@@ -561,9 +561,18 @@ env var degrades to "correct" rather than to a dead link — but set it anyway, 
 
 ### Item photos (Cloudinary)
 
-Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET` in
-`.env.local` **and** in Vercel (Production + Preview). All three are server-only; the
-secret never reaches the browser.
+Set the single `CLOUDINARY_URL` in `.env.local` **and** in Vercel (Production +
+Preview). Copy it from the Cloudinary dashboard: **Settings → API Keys → "API
+environment variable"**, which gives you exactly this shape:
+
+```bash
+CLOUDINARY_URL="cloudinary://<api_key>:<api_secret>@<cloud_name>"
+```
+
+The Cloudinary SDK reads that variable itself, so it is the only Cloudinary setting
+the app needs. **It contains the API secret** — server-only, never `NEXT_PUBLIC_`,
+never imported into a client component. Leave it unset and the upload button reports
+that uploads are not enabled; nothing else on the site is affected.
 
 Photos upload **straight from the admin's browser to Cloudinary** using a short-lived
 signature minted by `POST /api/admin/cloudinary-signature` (guarded by

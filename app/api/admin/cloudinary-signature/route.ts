@@ -18,9 +18,10 @@ export async function POST(): Promise<Response> {
   if (guard instanceof Response) return guard;
 
   if (!cloudinaryConfigured()) {
-    // Names the missing configuration, never any value.
+    // Names the missing configuration, never any value — CLOUDINARY_URL
+    // contains the API secret.
     console.error(
-      "[cerablus] image upload attempted but Cloudinary is not configured — set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET.",
+      "[cerablus] image upload attempted but Cloudinary is not configured — set CLOUDINARY_URL to cloudinary://<api_key>:<api_secret>@<cloud_name>.",
     );
     return Response.json(
       { error: "رفع الصور مش مفعّل على هذا الخادم. راجع إعدادات Cloudinary." },

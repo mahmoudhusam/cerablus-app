@@ -1,6 +1,14 @@
 /**
  * SERVER ONLY — Cloudinary configuration, upload signing, and asset deletion.
  *
+ * CONFIGURED BY ONE VARIABLE: CLOUDINARY_URL, in the form the Cloudinary
+ * dashboard hands you —
+ *
+ *   cloudinary://<api_key>:<api_secret>@<cloud_name>
+ *
+ * It contains the API SECRET, so it is server-only and must never be given a
+ * NEXT_PUBLIC_ prefix. Nothing in this file logs it.
+ *
  * WHY SIGNED DIRECT UPLOAD (and not "post the file to a server action")
  * --------------------------------------------------------------------
  * Both keep the API secret server-side, so that is not the deciding factor.
@@ -28,6 +36,11 @@
  * our own cloud name plus the verified public_id, exactly as CLAUDE.md requires
  * ("Never accept an arbitrary URL from the client as the image").
  */
+/* MUST STAY ABOVE the `cloudinary` import. The SDK throws while being imported
+   if CLOUDINARY_URL is malformed, which is too early for any try/catch below to
+   catch; this drops a bad value first. See lib/cloudinary-env.ts. */
+import "@/lib/cloudinary-env";
+
 import { v2 as cloudinary } from "cloudinary";
 
 /** Every menu photo lives here, so the café's assets are one tidy folder. */
@@ -51,35 +64,67 @@ export type UploadTicket = {
   allowedFormats: string;
 };
 
-function readConfig() {
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME ?? "";
-  const apiKey = process.env.CLOUDINARY_API_KEY ?? "";
-  const apiSecret = process.env.CLOUDINARY_API_SECRET ?? "";
-  return { cloudName, apiKey, apiSecret };
+type CloudinaryCredentials = {
+  cloudName: string;
+  apiKey: string;
+  apiSecret: string;
+};
+
+/**
+ * Configure the SDK from CLOUDINARY_URL and hand back the pieces we sign with.
+ * Returns null when the variable is missing or unusable, so callers can decide
+ * between a friendly message and an exception.
+ *
+ * THE SDK DOES THE PARSING. `cloudinary.config(true)` re-reads
+ * `cloudinary://<api_key>:<api_secret>@<cloud_name>` straight out of the
+ * environment — the `true` forces a fresh read instead of returning a config
+ * cached from an earlier call, which matters on a warm serverless instance. We
+ * then read the parsed values back off it rather than splitting the string
+ * ourselves, so there is one parser and it is Cloudinary's.
+ *
+ * The SDK THROWS when CLOUDINARY_URL does not begin with `cloudinary://`, so
+ * that is caught here: a typo in an environment variable must surface as
+ * "uploads are not enabled", never as a 500.
+ *
+ * Lazy on purpose — importing this file never touches the environment.
+ */
+function loadCredentials(): CloudinaryCredentials | null {
+  // Trimmed: a trailing newline pasted into a dashboard is otherwise part of
+  // the secret, and the failure it causes says nothing useful.
+  if (!(process.env.CLOUDINARY_URL ?? "").trim()) return null;
+
+  try {
+    const config = cloudinary.config(true);
+    // Delivery URLs must be https; merged after the env read so it survives it.
+    cloudinary.config({ secure: true });
+
+    const cloudName = typeof config.cloud_name === "string" ? config.cloud_name : "";
+    const apiKey = typeof config.api_key === "string" ? config.api_key : "";
+    const apiSecret = typeof config.api_secret === "string" ? config.api_secret : "";
+    if (!cloudName || !apiKey || !apiSecret) return null;
+
+    return { cloudName, apiKey, apiSecret };
+  } catch {
+    // Malformed value. Nothing is logged here: the string contains the secret.
+    return null;
+  }
 }
 
-/** True when all three variables are present. */
+/** True when CLOUDINARY_URL is present and well-formed. */
 export function cloudinaryConfigured(): boolean {
-  const { cloudName, apiKey, apiSecret } = readConfig();
-  return Boolean(cloudName && apiKey && apiSecret);
+  return loadCredentials() !== null;
 }
 
 /** Configure the SDK lazily, so importing this file never throws. */
-function configured() {
-  const { cloudName, apiKey, apiSecret } = readConfig();
-  if (!cloudName || !apiKey || !apiSecret) {
-    // Names only — never the values.
+function configured(): CloudinaryCredentials {
+  const credentials = loadCredentials();
+  if (!credentials) {
+    // The variable NAME only — never the value, which carries the API secret.
     throw new Error(
-      "Cloudinary is not configured: set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET.",
+      "Cloudinary is not configured: set CLOUDINARY_URL to cloudinary://<api_key>:<api_secret>@<cloud_name>.",
     );
   }
-  cloudinary.config({
-    cloud_name: cloudName,
-    api_key: apiKey,
-    api_secret: apiSecret,
-    secure: true,
-  });
-  return { cloudName, apiKey, apiSecret };
+  return credentials;
 }
 
 /**
