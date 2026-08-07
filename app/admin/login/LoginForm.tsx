@@ -29,10 +29,10 @@ export function LoginForm() {
   return (
     <form className="admin-form" action={formAction} noValidate>
       <label className="admin-field">
-        <span>اسم المستخدم</span>
+        <span>البريد الإلكتروني</span>
         <input
-          name="username"
-          type="text"
+          name="email"
+          type="email"
           autoComplete="username"
           required
           autoFocus

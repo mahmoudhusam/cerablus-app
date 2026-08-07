@@ -28,16 +28,29 @@ import { redirect } from "next/navigation";
 import { LOGIN_PATH } from "@/lib/auth.config";
 import { auth } from "@/lib/auth";
 
-/** The signed-in owner. Deliberately tiny — there is only ever one. */
+/**
+ * The signed-in owner. Deliberately tiny — there is only ever one, and nothing
+ * about the credential (never the hash) belongs in here.
+ */
 export type AdminUser = {
-  username: string;
+  /** AdminUser.id — what the account page updates. */
+  id: string;
+  /** The login email, also what the dashboard shell displays. */
+  email: string;
 };
 
 /** The current owner, or null when there is no valid session. */
 export async function getAdminSession(): Promise<AdminUser | null> {
   const session = await auth();
   if (!session?.user) return null;
-  return { username: session.user.name ?? "" };
+
+  const id = session.user.id ?? "";
+  const email = session.user.email ?? "";
+  // A session that carries neither is not a usable identity — treat it as
+  // signed out rather than handing back a blank owner.
+  if (!id || !email) return null;
+
+  return { id, email };
 }
 
 /**

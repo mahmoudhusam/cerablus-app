@@ -245,6 +245,41 @@ export const itemSchema = itemBaseSchema.transform((raw, ctx): ItemInput => {
   };
 });
 
+/* --------------------------------------------------------------------------
+   Admin account
+   -------------------------------------------------------------------------- */
+
+/** The floor the seed script enforces too, so the two can never disagree. */
+export const MIN_PASSWORD_LENGTH = 8;
+
+/**
+ * Changing the owner's own email and password.
+ *
+ * `currentPassword` is not validated for shape — it is whatever they typed, and
+ * the ACTION checks it against the stored hash. Applying rules to it here would
+ * only leak what the old password looked like.
+ */
+export const accountSchema = z
+  .object({
+    currentPassword: z.string().min(1, "كلمة المرور الحالية مطلوبة"),
+    email: z
+      .string()
+      .trim()
+      .toLowerCase()
+      .min(1, "البريد الإلكتروني مطلوب")
+      .max(200, "البريد الإلكتروني طويل كتير")
+      .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "البريد الإلكتروني غير صالح"),
+    newPassword: z
+      .string()
+      .min(MIN_PASSWORD_LENGTH, `كلمة المرور لازم تكون ${MIN_PASSWORD_LENGTH} أحرف على الأقل`)
+      .max(200, "كلمة المرور طويلة كتير"),
+    confirmPassword: z.string().min(1, "تأكيد كلمة المرور مطلوب"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "كلمتا المرور غير متطابقتين",
+  });
+
 export const itemUpdateSchema = z.object({ id: cuid });
 
 export const itemDeleteSchema = z.object({ id: cuid });

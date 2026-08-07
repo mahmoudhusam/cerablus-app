@@ -31,7 +31,7 @@ export async function loginAction(
   _previous: LoginState,
   formData: FormData,
 ): Promise<LoginState> {
-  const username = String(formData.get("username") ?? "");
+  const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
 
   /* Read the budget without spending it, purely so a locked-out owner gets a
@@ -46,7 +46,7 @@ export async function loginAction(
   try {
     // redirectTo is a fixed internal path, never anything from the request, so
     // this cannot be turned into an open redirect.
-    await signIn("credentials", { username, password, redirectTo: "/admin" });
+    await signIn("credentials", { email, password, redirectTo: "/admin" });
   } catch (error) {
     if (error instanceof AuthError) return { error: GENERIC_ERROR };
     throw error;

@@ -17,7 +17,15 @@ export const metadata: Metadata = {
  * already being logged in. Middleware allows this exact path (and bounces an
  * already-signed-in owner on to /admin).
  */
-export default function AdminLoginPage() {
+export default async function AdminLoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ updated?: string }>;
+}) {
+  // Set by the account page after a successful credential change, which signs
+  // the owner out on purpose. Without this the redirect looks like a rejection.
+  const { updated } = await searchParams;
+
   return (
     <main className="admin-auth">
       <div className="admin-card">
@@ -32,6 +40,12 @@ export default function AdminLoginPage() {
 
         <h1>لوحة التحكم</h1>
         <p className="admin-lede">سجّل دخولك لإدارة المنيو.</p>
+
+        {updated ? (
+          <p className="admin-flash admin-flash-ok" role="status">
+            تم تحديث بيانات الدخول. سجّل دخولك ببياناتك الجديدة.
+          </p>
+        ) : null}
 
         <LoginForm />
       </div>

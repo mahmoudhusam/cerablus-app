@@ -119,18 +119,41 @@ menu** — it counts first, explains what it would delete, and exits without tou
 anything. An empty database seeds normally. To re-seed deliberately and discard the
 live menu, say so explicitly: `CERABLUS_SEED_CONFIRM=wipe npm run seed`.
 
-### Admin login (Step 4)
+### Admin login
 
-One owner. There is no user table, no sign-up and no password reset — four
-environment variables **are** the account.
+One owner. There is no sign-up, no roles and no password-reset email. The login
+lives in the **database** (the `AdminUser` table), so the owner can change their
+own email and password from the dashboard without a redeploy.
+
+Set the session variables in `.env.local`:
 
 ```bash
 openssl rand -base64 32     # -> NEXTAUTH_SECRET
-npm run hash-password       # -> ADMIN_PASSWORD_HASH
+                            # -> NEXTAUTH_URL, e.g. http://localhost:3000
 ```
 
-Then set `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH`, `NEXTAUTH_SECRET` and
-`NEXTAUTH_URL` in `.env.local`.
+Then create the admin row:
+
+```bash
+npm run db:deploy                                    # apply migrations
+ADMIN_EMAIL=owner@example.com \
+ADMIN_PASSWORD='a long passphrase' npm run seed-admin
+```
+
+`seed-admin` hashes the password with bcrypt and stores **only the hash**; the
+plaintext is an input, never written or logged. Run it with no variables and it
+falls back to `test@gmail.com` / `admin123456` so a fresh checkout always has a
+working login — those are published here, so change them before the site goes
+live.
+
+> **Forgot the password?** Re-run `seed-admin`. It upserts the same single admin
+> rather than creating a second one, so it resets the password in place. That is
+> the whole recovery path.
+
+**Changing the login from the UI:** sign in, open **الحساب**, enter the current
+password plus the new email and password. Saving signs you out on purpose — the
+old session was minted from the old credentials — and you sign back in with the
+new ones.
 
 > **Escape the `# Cerablus Coffee — web app
 

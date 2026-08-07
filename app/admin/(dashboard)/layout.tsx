@@ -43,13 +43,17 @@ export default async function DashboardLayout({
           <nav className="admin-nav" aria-label="أقسام لوحة التحكم">
             <Link href="/admin">الأصناف</Link>
             <Link href="/admin/categories">الأقسام</Link>
+            <Link href="/admin/account">الحساب</Link>
             <Link href="/menu" target="_blank" rel="noopener noreferrer">
               المنيو العام ↗
             </Link>
           </nav>
 
           <div className="admin-bar-actions">
-            <span className="admin-who">{admin.username}</span>
+            {/* dir="ltr" so the email reads correctly inside the RTL bar. */}
+            <span className="admin-who" dir="ltr">
+              {admin.email}
+            </span>
             {/* A form POST, not a link: signing out is a state change and must
                 not be triggerable by a prefetch or a stray GET. */}
             <form action={logoutAction}>

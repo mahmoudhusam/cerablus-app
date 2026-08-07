@@ -2,15 +2,21 @@
  * Auth.js — the NODE-runtime half: the Credentials provider and the actual
  * password check. See lib/auth.config.ts for why the config is split.
  *
- * SINGLE OWNER. There is no user table, no sign-up, no roles and no password
- * reset. One username and one bcrypt hash live in environment variables; a
- * successful compare is the entire authorization model.
+ * SINGLE OWNER. There is no sign-up, no roles and no password-reset email. One
+ * AdminUser row holds the login email and a bcrypt hash; a successful compare
+ * is the entire authorization model.
+ *
+ * The credentials moved OUT of the environment and INTO the database, so the
+ * owner can change their own email and password from the dashboard without a
+ * redeploy. `scripts/seed-admin.ts` creates or resets that row; ADMIN_USERNAME
+ * and ADMIN_PASSWORD_HASH are no longer read by the login path at all.
  */
 import { compare } from "bcryptjs";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 import { authConfig } from "@/lib/auth.config";
+import { prisma } from "@/lib/prisma";
 import { clientKeyFrom, consume, reset, type RateLimitOptions } from "@/lib/rate-limit";
 
 /**
@@ -36,53 +42,31 @@ export function loginRateLimitKey(headers: Headers): string {
 
 /**
  * A syntactically valid bcrypt hash, used ONLY to keep the work constant when
- * ADMIN_PASSWORD_HASH is missing. It is not a credential and unlocks nothing:
- * it is the hash of a random string nobody kept. Without it, an unconfigured
- * deployment would answer instantly and advertise that fact.
+ * no admin row matches the submitted email. It is not a credential and unlocks
+ * nothing: it is the hash of a random string nobody kept.
+ *
+ * Without it, an unknown email would answer instantly while a known one paid
+ * for a ~1.7s bcrypt compare — which turns the login form into an oracle for
+ * "does this email have an account here".
  */
 const PLACEHOLDER_HASH = "$2b$12$45zKYEKTf0uiUZUCdV6Ssudup.tRl4zL3hY2XmvTZ4EfDSERMlove";
 
-/** `$2b$12$` + a 22-character salt + a 31-character digest. */
-const BCRYPT_HASH = /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/;
-
 /**
- * Check that ADMIN_PASSWORD_HASH still looks like a bcrypt hash, and explain it
- * clearly if not.
- *
- * This exists because of a trap that costs hours otherwise: Next.js runs every
- * `.env*` value through dotenv-expand, which treats `$` as the start of a
- * variable reference. A bcrypt hash is full of them, so `$2b$12$abc…` silently
- * becomes a shorter, wrong string — and quoting does NOT save it. The hash has
- * to be written with each `$` backslash-escaped:
- *
- *   ADMIN_PASSWORD_HASH="\$2b\$12\$abc…"
- *
- * (`npm run hash-password` prints it that way. A value set in Vercel's
- * dashboard is not parsed by dotenv and takes the hash verbatim.)
- *
- * Without this check the only symptom is "بيانات الدخول غير صحيحة" for a
- * password that is perfectly correct.
+ * The app stores and compares a lowercased, trimmed email. Doing it here as
+ * well as in the seed script means the owner can type Owner@Example.com and
+ * still get in.
  */
-function checkHashShape(hash: string): boolean {
-  if (BCRYPT_HASH.test(hash)) return true;
-
-  // Length and shape only — never the value itself.
-  console.error(
-    `[cerablus] ADMIN_PASSWORD_HASH is not a valid bcrypt hash (length ${hash.length}, expected 60). ` +
-      "If you set it in a .env file, escape every $ as \\$ — Next.js expands unescaped $ as a variable " +
-      "and silently truncates the hash. Re-run `npm run hash-password` and copy the .env line it prints.",
-  );
-  return false;
+export function normalizeEmail(value: string): string {
+  return value.trim().toLowerCase();
 }
 
 /**
  * Constant-time string comparison.
  *
- * `===` on the username would return as soon as two bytes differ, letting an
- * attacker recover it character by character from response timing. Both sides
- * are hashed to a fixed 32 bytes first so the comparison also cannot leak the
- * username's LENGTH, which a raw timingSafeEqual would (it throws on a length
- * mismatch).
+ * `===` would return as soon as two bytes differ, letting an attacker recover
+ * the value character by character from response timing. Both sides are hashed
+ * to a fixed 32 bytes first so the comparison also cannot leak the value's
+ * LENGTH, which a raw timingSafeEqual would (it throws on a length mismatch).
  */
 async function constantTimeEquals(a: string, b: string): Promise<boolean> {
   const encoder = new TextEncoder();
@@ -103,7 +87,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
       credentials: {
-        username: { label: "اسم المستخدم", type: "text" },
+        email: { label: "البريد الإلكتروني", type: "email" },
         password: { label: "كلمة المرور", type: "password" },
       },
 
@@ -112,7 +96,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
        *
        * Auth.js turns every null into the same CredentialsSignin error, and the
        * login page renders one generic Arabic message — so the response never
-       * says whether the username or the password was the problem.
+       * says whether the email or the password was the problem.
        *
        * The password is never logged, never returned, and never compared as
        * plaintext.
@@ -124,42 +108,54 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const key = loginRateLimitKey(request.headers);
         if (!consume(key, LOGIN_RATE_LIMIT).allowed) return null;
 
-        const username = typeof credentials?.username === "string" ? credentials.username : "";
+        const email = normalizeEmail(
+          typeof credentials?.email === "string" ? credentials.email : "",
+        );
         const password = typeof credentials?.password === "string" ? credentials.password : "";
-        if (!username || !password) return null;
+        if (!email || !password) return null;
 
-        const expectedUsername = process.env.ADMIN_USERNAME ?? "";
-        const expectedHash = process.env.ADMIN_PASSWORD_HASH ?? "";
-
-        /* Configuration problems are reported by name, never by value, and
-           never abort early — a login against a misconfigured server must still
-           take the same time as any other failed login. */
-        const configured =
-          Boolean(expectedUsername) && Boolean(expectedHash) && checkHashShape(expectedHash);
-
-        if (!expectedUsername || !expectedHash) {
+        /* A database lookup, not an environment variable. A failure here (Neon
+           asleep, network gone) must read as "login failed", never as a stack
+           trace on the login screen. */
+        let admin: { id: string; email: string; passwordHash: string } | null = null;
+        try {
+          admin = await prisma.adminUser.findUnique({
+            where: { email },
+            select: { id: true, email: true, passwordHash: true },
+          });
+        } catch (error) {
+          // The message only; a connection error can carry the URL — and
+          // therefore the password — in its payload.
           console.error(
-            "[cerablus] admin login is not configured — set ADMIN_USERNAME and ADMIN_PASSWORD_HASH.",
+            "[cerablus] could not read the admin account during login.",
+            error instanceof Error ? error.message : error,
+          );
+          return null;
+        }
+
+        if (!admin) {
+          console.error(
+            "[cerablus] login attempted but no admin account matched. If none exists yet, run `npm run seed-admin`.",
           );
         }
 
         /* Both checks always run, and the bcrypt compare always runs against a
-           well-formed hash. A wrong username therefore costs exactly what a
+           well-formed hash. An unknown email therefore costs exactly what a
            wrong password costs, so response time is not an oracle for "does
-           this username exist". */
-        const [usernameMatches, passwordMatches] = await Promise.all([
-          constantTimeEquals(username, expectedUsername),
-          compare(password, configured ? expectedHash : PLACEHOLDER_HASH),
+           this account exist". */
+        const [emailMatches, passwordMatches] = await Promise.all([
+          constantTimeEquals(email, admin?.email ?? ""),
+          compare(password, admin?.passwordHash ?? PLACEHOLDER_HASH),
         ]);
 
-        if (!configured || !usernameMatches || !passwordMatches) return null;
+        if (!admin || !emailMatches || !passwordMatches) return null;
 
         // Clean slate for the owner's next login from this address.
         reset(key);
 
         // Everything returned here ends up in the JWT and reaches the browser.
-        // The username is all the shell needs; nothing else belongs in it.
-        return { id: "owner", name: expectedUsername };
+        // The id and email are all the shell needs; the hash never leaves here.
+        return { id: admin.id, email: admin.email, name: admin.email };
       },
     }),
   ],

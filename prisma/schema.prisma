@@ -13,6 +13,17 @@ datasource db {
   provider = "postgresql"
 }
 
+/// The café owner's login. SINGLE OWNER: there is no sign-up, no roles and no
+/// second row in normal operation — `scripts/seed-admin.ts` upserts exactly one.
+/// Only the bcrypt hash is stored; the plaintext password exists solely as the
+/// seed script's input and is never written, logged or returned.
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique // lowercased on write; the login identifier
+  passwordHash String // bcrypt, cost 12
+  updatedAt    DateTime @updatedAt
+}
+
 /// A menu section, e.g. "القهوة الساخنة".
 model Category {
   id        String @id @default(cuid())

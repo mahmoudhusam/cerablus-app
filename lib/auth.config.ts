@@ -107,15 +107,25 @@ export const authConfig = {
       return signedIn;
     },
 
-    /** Carry the owner's username on the token so the shell can greet them. */
+    /**
+     * Carry the owner's id and email on the token: the id is what the account
+     * page updates, the email is what the shell greets them with. Only these
+     * two — the password hash must never reach a token that travels to the
+     * browser.
+     */
     jwt({ token, user }) {
-      if (user) token.username = user.name ?? undefined;
+      if (user) {
+        token.adminId = user.id ?? undefined;
+        token.email = user.email ?? undefined;
+      }
       return token;
     },
 
     session({ session, token }) {
       if (session.user) {
-        session.user.name = (token.username as string | undefined) ?? session.user.name;
+        session.user.id = (token.adminId as string | undefined) ?? session.user.id;
+        session.user.email = (token.email as string | undefined) ?? session.user.email;
+        session.user.name = session.user.email;
       }
       return session;
     },
