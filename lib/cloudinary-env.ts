@@ -33,6 +33,52 @@
  */
 const CLOUDINARY_URL_SHAPE = /^cloudinary:\/\/[^:@\s]+:[^@\s]+@[^@/\s]+/i;
 
+/**
+ * What CLOUDINARY_URL looked like BEFORE this module touched it.
+ *
+ * Diagnostics only, and deliberately metadata-only: booleans, a length, and the
+ * single first character. The value itself carries the API secret and is never
+ * captured here.
+ *
+ * This snapshot exists because the scrub below is destructive — it trims the
+ * variable and DELETES it outright when malformed. Anything reading
+ * `process.env.CLOUDINARY_URL` afterwards therefore cannot tell "never set"
+ * apart from "set, but rejected", which is exactly the distinction you need
+ * when uploads say "not enabled" on one host and work on another.
+ */
+export type CloudinaryUrlSnapshot = {
+  /** The variable existed and was not blank/whitespace. */
+  present: boolean;
+  /** Length of the TRIMMED value. A number cannot reveal the secret. */
+  length: number;
+  /** First character only — catches a leading quote from a pasted value. */
+  firstChar: string;
+  /** Wrapped in " or ' — the classic dashboard copy-paste mistake. */
+  hasSurroundingQuotes: boolean;
+  startsWithScheme: boolean;
+  matchesExpectedShape: boolean;
+  /** True when the scrub rejected it, so the SDK never saw it. */
+  droppedAsMalformed: boolean;
+  /** True when trimming actually changed the value (stray whitespace/newline). */
+  hadSurroundingWhitespace: boolean;
+};
+
+const snapshot: CloudinaryUrlSnapshot = {
+  present: false,
+  length: 0,
+  firstChar: "",
+  hasSurroundingQuotes: false,
+  startsWithScheme: false,
+  matchesExpectedShape: false,
+  droppedAsMalformed: false,
+  hadSurroundingWhitespace: false,
+};
+
+/** The pre-scrub snapshot. Safe to serialise: it holds no secret material. */
+export function cloudinaryUrlSnapshot(): Readonly<CloudinaryUrlSnapshot> {
+  return { ...snapshot };
+}
+
 function scrubCloudinaryUrl(): void {
   const raw = process.env.CLOUDINARY_URL;
   if (raw === undefined) return;
@@ -42,6 +88,17 @@ function scrubCloudinaryUrl(): void {
      fail signing with no clue why. */
   const trimmed = raw.trim();
 
+  /* Record what arrived, before any of it is changed or discarded. Metadata
+     only — see CloudinaryUrlSnapshot. */
+  snapshot.present = trimmed !== "";
+  snapshot.length = trimmed.length;
+  snapshot.firstChar = trimmed.slice(0, 1);
+  snapshot.hasSurroundingQuotes =
+    /^["']/.test(trimmed) || /["']$/.test(trimmed);
+  snapshot.startsWithScheme = trimmed.toLowerCase().startsWith("cloudinary://");
+  snapshot.matchesExpectedShape = CLOUDINARY_URL_SHAPE.test(trimmed);
+  snapshot.hadSurroundingWhitespace = raw !== trimmed;
+
   // Set-but-empty is the same as unset, and must not reach the SDK as "".
   if (trimmed === "") {
     delete process.env.CLOUDINARY_URL;
@@ -49,6 +106,7 @@ function scrubCloudinaryUrl(): void {
   }
 
   if (!CLOUDINARY_URL_SHAPE.test(trimmed)) {
+    snapshot.droppedAsMalformed = true;
     /* The NAME and the expected shape only. The real value carries the API
        secret and is never logged, not even in part. */
     console.error(
